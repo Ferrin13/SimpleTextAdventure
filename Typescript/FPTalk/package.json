@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "imperative": "ts-node src/Imperative/Game",
+    "functional": "ts-node src/Functional/Game"
+  },
+  "devDependencies": {
+    "@types/node": "^13.5.0"
+  }
+}

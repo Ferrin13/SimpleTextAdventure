@@ -1,0 +1,29 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Imperative",
+      "console": "externalTerminal",
+      //Using absolute path because relative path uses windows escapes which break bash
+      "program": "C:/Users/CCOOK2/source/repos/Sandbox/Typescript/FPTalk/src/Imperative/Game.ts",
+      "preLaunchTask": "Run TSC",
+      //Using absolute path because relative path uses windows escapes which break bash
+      "outFiles": ["C:/Users/CCOOK2/source/repos/Sandbox/Typescript/FPTalk/compiledJs/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Functional",
+      //Using absolute path because relative path uses windows escapes which break bash
+      "program": "C:/Users/CCOOK2/source/repos/Sandbox/Typescript/FPTalk/src/Functional/Game.ts",
+      "preLaunchTask": "Run TSC",
+      //Using absolute path because relative path uses windows escapes which break bash
+      "outFiles": ["C:/Users/CCOOK2/source/repos/Sandbox/Typescript/FPTalk/compiledJs/**/*.js"]
+    }
+  ]
+}
