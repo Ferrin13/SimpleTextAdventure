@@ -1,5 +1,6 @@
-import { NPC, Dungeon, NPCActions } from './GameObjects';
 import { compose } from './Utility';
+import { Dungeon, NPC } from './Models/Entities';
+import { NPCActions } from './Models/EntityActions';
 
 const mrBadGuy: NPC = {
   name: "Mr. Bad Guy", 
@@ -10,22 +11,13 @@ const mrBadGuy: NPC = {
 
 const earlyDungeon = new Dungeon("Easy Dungeon", 2, mrBadGuy);
 
-// const mrBadGuyIncreasedAD = NPCActions.setAttackDamage(mrBadGuy, 100)
-// const harderMrBadGuy = NPCActions.setHealth(mrBadGuyIncreasedAD, 1000)
+const harderMrBadGuy = NPCActions.setHealth(
+  NPCActions.setAttackDamage(mrBadGuy, 100),
+  1000
+)
 
-// const harderMrBadGuy = NPCActions.setHealth(
-//   NPCActions.setAttackDamage(mrBadGuy, 100),
-//   1000
-// )
-
-// const harderMrBadGuy = {
-//   ...mrBadGuy, 
-//   health: 1000,
-//   attackDamage: 100
-// }
-
-const makeHarder = compose(NPCActions.currySetAttackDamage(25), NPCActions.currySetHealth(50));
-const harderMrBadGuy = makeHarder(mrBadGuy);
+// const makeHarder = compose(NPCActions.currySetAttackDamage(25), NPCActions.currySetHealth(50));
+// const harderMrBadGuy = makeHarder(mrBadGuy);
 
 const laterDungeon = new Dungeon("Hard Dungeon", 9, harderMrBadGuy);
 

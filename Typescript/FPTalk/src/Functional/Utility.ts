@@ -1,13 +1,13 @@
 import * as readline from 'readline';
 
-export const createPrompt = <T>(promptText: string, answerHandler: (answer: string) => T): Promise<T> => {
+export const createPrompt = (promptText: string): Promise<string> => {
   const readLineInterface = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   })
   return new Promise(resolve => 
     readLineInterface.question(promptText, answer => {
-      resolve(answerHandler(answer));
+      resolve(answer);
       readLineInterface.close();
     })
   )
@@ -17,6 +17,14 @@ export const asyncForEach = async <T>(array: T[], callbackfn: (value: T, index: 
     await callbackfn(array[i], i, array)
   }
 }
+
+export const logAfterDelay = async (text: string, delayMs: number): Promise<void> => 
+  new Promise(resolve => 
+    setTimeout(() => {
+      console.log(text);
+      resolve();
+    }, delayMs)
+  );
 
 export function compose<T, RIntermediate, R>(
   func1: (arg: RIntermediate) => R,

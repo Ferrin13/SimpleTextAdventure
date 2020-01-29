@@ -1,4 +1,4 @@
-import {NPC, Dungeon} from './GameObjects';
+import { Dungeon, NPC } from "./Models/Entities";
 
 const mrBadGuy = new NPC("Mr. Bad Guy", "Human", 10, 100);
 
