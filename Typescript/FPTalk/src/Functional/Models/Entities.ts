@@ -13,15 +13,6 @@ export interface Weapon {
 export class Dungeon {
   name: string;
   difficulty: number;
+  minions: NPC[];
   boss: NPC;
-
-  constructor(name: string, difficulty: number, boss: NPC) {
-    this.name = name;
-    this.difficulty = difficulty;
-    this.boss = boss;
-  }
-
-  toString(): string {
-    return `Name: ${name}\nDifficulty: ${this.difficulty}\nBoss:{}`
-  }
 }

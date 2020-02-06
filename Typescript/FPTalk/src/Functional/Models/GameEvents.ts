@@ -1,13 +1,13 @@
 export interface CombatResult {
-  playerDefeated: boolean;
+  playerVictory: boolean;
   weaponsGained?: string[];
   weaponsLost?: string[];
 }
 
 export const STANDARD_COMBAT_VICTORY = {
-  playerDefeated: false
+  playerVictory: true
 }
 
 export const STANDARD_COMBAT_DEFEAT = {
-  playerDefeated: true
+  playerVictory: false
 }

@@ -1,6 +1,7 @@
 import { compose } from './Utility';
 import { Dungeon, NPC } from './Models/Entities';
 import { NPCActions } from './Models/EntityActions';
+import { getRandomMinionsWithDifficulty } from './ListManipulation';
 
 const mrBadGuy: NPC = {
   name: "Mr. Bad Guy", 
@@ -9,7 +10,12 @@ const mrBadGuy: NPC = {
   attackDamage: 10
 }
 
-const earlyDungeon = new Dungeon("Easy Dungeon", 2, mrBadGuy);
+const earlyDungeon = {
+  name: "Easy Dungeon",
+  difficulty: 2,
+  minions: getRandomMinionsWithDifficulty([1, 2, 6, 3, 5]),
+  boss: mrBadGuy
+};
 
 const harderMrBadGuy = NPCActions.setHealth(
   NPCActions.setAttackDamage(mrBadGuy, 100),
@@ -19,7 +25,12 @@ const harderMrBadGuy = NPCActions.setHealth(
 // const makeHarder = compose(NPCActions.currySetAttackDamage(25), NPCActions.currySetHealth(50));
 // const harderMrBadGuy = makeHarder(mrBadGuy);
 
-const laterDungeon = new Dungeon("Hard Dungeon", 9, harderMrBadGuy);
+const laterDungeon =  {
+  name: "Harder Dungeon",
+  difficulty: 9,
+  minions: getRandomMinionsWithDifficulty([10]),
+  boss: harderMrBadGuy
+};
 
 export const EXAMPLE_DUNGEONS = [earlyDungeon, laterDungeon];
 

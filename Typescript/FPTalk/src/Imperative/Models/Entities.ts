@@ -29,14 +29,20 @@ export class Dungeon {
   name: string;
   difficulty: number;
   boss: NPC;
+  minions: NPC[];
 
   constructor(name: string, difficulty: number, boss: NPC) {
     this.name = name;
     this.difficulty = difficulty;
     this.boss = boss;
+    this.minions = [];
   }
 
   toString(): string {
     return `Name: ${name}\nDifficulty: ${this.difficulty}\nBoss:{}`
+  }
+
+  addMinions(minions: NPC[]) {
+    this.minions.push(...minions);
   }
 }

@@ -12,3 +12,11 @@ export const createPrompt = (promptText: string): Promise<string> => {
     })
   )
 }
+
+export const logAfterDelay = async (text: string, delayMs: number): Promise<void> => 
+  new Promise(resolve => 
+    setTimeout(() => {
+      console.log(text);
+      resolve();
+    }, delayMs)
+  );

@@ -12,10 +12,18 @@ export const createPrompt = (promptText: string): Promise<string> => {
     })
   )
 }
-export const asyncForEach = async <T>(array: T[], callbackfn: (value: T, index: number, array: T[]) => Promise<void>) => {
+export const asyncForEach = async <T>(array: T[], callbackfn: (value: T, index?: number, array?: T[]) => Promise<void>) => {
   for(let i = 0; i < array.length; i++) {
     await callbackfn(array[i], i, array)
   }
+}
+
+export const asyncReduce = async <T, R>(array: T[], callbackfn: (acc: R, value: T, index?: number, array?: T[]) => Promise<R>, initialValue: R): Promise<R> => {
+  let accumulator = initialValue;
+  for(let i = 0; i < array.length; i++) {
+    accumulator = await callbackfn(accumulator, array[i], i, array);
+  }
+  return accumulator;
 }
 
 export const logAfterDelay = async (text: string, delayMs: number): Promise<void> => 
