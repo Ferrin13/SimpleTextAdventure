@@ -1,14 +1,23 @@
+import { Dungeon } from './Entities';
 export class CombatResult {
-  playerDefeated: boolean;
+  playerVictory: boolean;
   weaponsGained: string[];
   weaponsLost: string[];
 
-  constructor(playerDefeated: boolean, weaponsGained?: string[], weaponsLost?: string[]) {
-    this.playerDefeated = playerDefeated;
+  constructor(playerVictory: boolean, weaponsGained?: string[], weaponsLost?: string[]) {
+    this.playerVictory = playerVictory;
     this.weaponsGained = weaponsGained ?? [];
     this.weaponsLost = weaponsLost ?? [];
   }
 }
 
-export const STANDARD_COMBAT_VICTORY = new CombatResult(false);
-export const STANDARD_COMBAT_DEFEAT = new CombatResult(true);
+export class DungeonResult extends CombatResult {
+  bossKilled: boolean;
+  constructor(combatResult: CombatResult, bossKilled: boolean) {
+    super(combatResult.playerVictory, combatResult.weaponsGained, combatResult.weaponsLost)
+    this.bossKilled = bossKilled;
+  }
+}
+
+export const STANDARD_COMBAT_VICTORY = new CombatResult(true);
+export const STANDARD_COMBAT_DEFEAT = new CombatResult(false);

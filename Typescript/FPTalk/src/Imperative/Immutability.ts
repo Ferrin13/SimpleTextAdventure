@@ -6,7 +6,7 @@ const mrBadGuy = new NPC("Mr. Bad Guy", "Human", 10, 100);
 const earlyDungeon = new Dungeon("Easy Dungeon", 2, mrBadGuy);
 earlyDungeon.addMinions(getRandomMinionsWithDifficulty([1, 2, 6, 3, 5]))
 
-const harderMyBadGuy = mrBadGuy;
+const harderMyBadGuy = mrBadGuy; //Bug
 harderMyBadGuy.setHealth(1000);
 harderMyBadGuy.setAttackDamage(100);
 

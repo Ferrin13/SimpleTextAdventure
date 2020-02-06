@@ -13,6 +13,12 @@ export const createPrompt = (promptText: string): Promise<string> => {
   )
 }
 
+export const pluralize = (value: number, singularText: string, pluralText?: string): string => {
+  const pluralForm = pluralText ?? `${singularText}s`;
+  return `${value} ${value === 1 ? singularText : pluralForm}`
+}
+
+
 export const logAfterDelay = async (text: string, delayMs: number): Promise<void> => 
   new Promise(resolve => 
     setTimeout(() => {
