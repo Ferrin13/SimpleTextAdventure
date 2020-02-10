@@ -1,4 +1,5 @@
 import * as readline from 'readline';
+export const DEFAULT_LOG_WAIT = 1000;
 
 export const createPrompt = (promptText: string): Promise<string> => {
   const readLineInterface = readline.createInterface({
