@@ -1,4 +1,4 @@
-import { PlayerActions } from './../Models/PlayerActions';
+import { PlayerActions } from './PlayerActions';
 import { NPC, Weapon, Item, Player, isWeapon } from './../Models/Entities';
 import { logAfterDelay, createPrompt, NO_RESULT_TYPE, NO_RESULT, isNoResult } from './../Utility';
 import { CombatResult, STANDARD_COMBAT_VICTORY } from '../Models/GameEvents';
@@ -12,7 +12,6 @@ export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult
 const combatRound = async (npc: NPC, player: Player): Promise<CombatResult> => 
   createPrompt('Choose a weapon or item to use\n').then(async input => {
     const action = inputHandler(input, player);
-    console.log(`Action is: ${JSON.stringify(action)}`)
     if(isInvalidInput(action)) {
       console.log(`${input} is not in your inventory, your inventory currently is:`)
       PlayerActions.printInventory(player);
@@ -50,16 +49,16 @@ const inputHandler = (playerInput: string, player: Player) : CombatAction | INVA
 type ActionEntity = Weapon | Item;
 const getActionEntity = (normalizedInput: string, player: Player): ActionEntity | NO_RESULT_TYPE => {
   const weapon = matchEntityByName(normalizedInput, player.inventoryWeapons)
-  if(weapon) return weapon;
+  if(!isNoResult(weapon)) return weapon;
 
   const item = matchEntityByName(normalizedInput, player.inventoryItems)
-  if(item) return item;
+  if(!isNoResult(item)) return item;
 
   return NO_RESULT
 }
 
 const matchEntityByName = <T extends {name: string}>(normalizedInput: string, entities: T[]): T | NO_RESULT_TYPE => {
-  const entity = entities.find(w => w.name === normalizedInput)
+  const entity = entities.find(w => w.name.toLocaleLowerCase() === normalizedInput)
   return entity ?? NO_RESULT;
 }
 
@@ -77,8 +76,6 @@ const combatActionCreator = (entity: Weapon | Item): CombatAction => {
   }
 }
 
-
-
 const INVALID_INPUT_SYMBOL = Symbol()
 interface INVALID_INPUT_TYPE {
   symbol: typeof INVALID_INPUT_SYMBOL
@@ -87,4 +84,4 @@ const INVALID_INPUT: INVALID_INPUT_TYPE = {
   symbol: INVALID_INPUT_SYMBOL
 }
 const isInvalidInput = <T>(input: T | INVALID_INPUT_TYPE): input is INVALID_INPUT_TYPE =>
-  (input as INVALID_INPUT_TYPE).symbol !== INVALID_INPUT_SYMBOL;
+  (input as INVALID_INPUT_TYPE).symbol === INVALID_INPUT_SYMBOL;

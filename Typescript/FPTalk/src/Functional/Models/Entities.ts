@@ -13,8 +13,7 @@ export interface NPC {
   health: number;
 }
 
-export const isWeapon = (entity: Weapon | Item): entity is Weapon =>
-  (entity as Weapon).damage !== undefined;
+export const isWeapon = (entity: Weapon | Item): entity is Weapon => (entity as Weapon).damage !== undefined;
 export interface Weapon {
   name: string;
   damage: number;

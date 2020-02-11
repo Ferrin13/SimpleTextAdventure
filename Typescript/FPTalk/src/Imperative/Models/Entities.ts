@@ -1,3 +1,5 @@
+import { Player } from "./Player";
+
 export class NPC {
   name: string;
   species: string;
@@ -44,5 +46,25 @@ export class Dungeon {
 
   addMinions(minions: NPC[]) {
     this.minions.push(...minions);
+  }
+}
+
+export const isWeapon = (entity: Weapon | Item): entity is Weapon =>  (entity as Weapon).damage !== undefined;
+export class Weapon {
+  name: string;
+  damage: number;
+  constructor(name: string, damage: number) {
+    this.name = name;
+    this.damage = damage;
+  }
+}
+
+export class Item {
+  name: string;
+  playerEffect?: (player: Player) => Player;
+  enemyEffect?: (npc: NPC) => NPC;
+
+  constructor(name: string) {
+    this.name = name;
   }
 }

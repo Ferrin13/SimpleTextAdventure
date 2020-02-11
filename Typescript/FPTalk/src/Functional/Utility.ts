@@ -11,7 +11,6 @@ export const NO_RESULT: NO_RESULT_TYPE = {
 export const isNoResult = <T>(target: T | NO_RESULT_TYPE): target is NO_RESULT_TYPE => {
   return (target as NO_RESULT_TYPE).symbol === NO_RESULT_SYMBOL
 }
-  
 
 export const createPrompt = (promptText: string): Promise<string> => {
   const readLineInterface = readline.createInterface({
