@@ -1,7 +1,12 @@
+export const isPlayer = (target: Player | NPC): target is Player => {
+  return !!((target as Player).inventoryItems) //TODO May need to change if NPC is more cimplex
+}
+
 export interface Player {
   name: string;
   health: number;
   maxHealth: number;
+  baseAttackDamage: number;
   inventoryWeapons: Weapon[];
   inventoryItems: Item[]; 
 }
@@ -9,7 +14,12 @@ export interface Player {
 export interface NPC {
   name: string;
   species: string;
-  attackDamage: number;
+  baseAttackDamage: number;
+  health: number;
+}
+
+export interface CombatCapable {
+  baseAttackDamage: number;
   health: number;
 }
 
@@ -21,8 +31,8 @@ export interface Weapon {
 
 export interface Item {
   name: string;
-  playerEffect?: (player: Player) => Player;
-  enemyEffect?: (npc: NPC) => NPC;
+  userEffect?: (player: Player) => Player;
+  targetEffect?: (npc: NPC) => NPC;
 }
 
 export class Dungeon {

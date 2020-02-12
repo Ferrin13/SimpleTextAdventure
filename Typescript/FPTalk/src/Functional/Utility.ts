@@ -1,15 +1,15 @@
 import * as readline from 'readline';
 
-const NO_RESULT_SYMBOL = Symbol()
-export interface NO_RESULT_TYPE {
-  symbol: typeof NO_RESULT_SYMBOL
+const NOTHING_SYMBOL = Symbol()
+export interface NOTHING_TYPE {
+  symbol: typeof NOTHING_SYMBOL
 }
-export const NO_RESULT: NO_RESULT_TYPE = {
-  symbol: NO_RESULT_SYMBOL
+export const NOTHING: NOTHING_TYPE = {
+  symbol: NOTHING_SYMBOL
 }
 
-export const isNoResult = <T>(target: T | NO_RESULT_TYPE): target is NO_RESULT_TYPE => {
-  return (target as NO_RESULT_TYPE).symbol === NO_RESULT_SYMBOL
+export const isNothing = <T>(target: T | NOTHING_TYPE): target is NOTHING_TYPE => {
+  return (target as NOTHING_TYPE).symbol === NOTHING_SYMBOL
 }
 
 export const createPrompt = (promptText: string): Promise<string> => {

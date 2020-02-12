@@ -1,13 +1,16 @@
+import { Player } from "./Entities"
+
 export interface CombatResult {
   playerVictory: boolean;
-  weaponsGained?: string[];
-  weaponsLost?: string[];
+  player: Player
 }
 
-export const STANDARD_COMBAT_VICTORY = {
-  playerVictory: true
-}
+export const combatVictory = (player: Player): CombatResult => ({
+  playerVictory: true,
+  player
+})
 
-export const STANDARD_COMBAT_DEFEAT = {
-  playerVictory: false
-}
+export const combatDefeat = (player: Player): CombatResult => ({
+  playerVictory: false,
+  player
+})

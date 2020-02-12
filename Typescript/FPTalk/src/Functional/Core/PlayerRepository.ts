@@ -7,7 +7,7 @@ export const STARTING_PLAYER: Player = {
   inventoryItems: [
     {
       name: 'Health Potion',
-      playerEffect: (player: Player) => {
+      userEffect: (player: Player) => {
         const healthAfterPotion = player.health + 25;
         return {
           ...player,
