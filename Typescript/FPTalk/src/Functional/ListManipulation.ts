@@ -5,7 +5,7 @@ const POSSIBLE_MINION_NAMES = ['Minion1', 'Minion2', 'Minion3', 'Minion4'];
 const POSSIBLE_MINION_SPECIES = ['Human', 'Orc', 'Spider', 'Dog'];
 const EASY_MINION_HEALTH = 10;
 const EASY_MINION_DAMAGE = 2;
-const HARD_MINION_HEALTH = 150;
+const HARD_MINION_HEALTH = 75;
 const HARD_MINION_DAMAGE = 15;
 
 const TEMP_DIFFICULTY_CENTERPOINT = 5;

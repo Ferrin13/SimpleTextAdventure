@@ -23,6 +23,10 @@ export interface CombatCapable {
   health: number;
 }
 
+export interface Named {
+  name: string
+}
+
 export const isWeapon = (entity: Weapon | Item): entity is Weapon => (entity as Weapon).damage !== undefined;
 export interface Weapon {
   name: string;

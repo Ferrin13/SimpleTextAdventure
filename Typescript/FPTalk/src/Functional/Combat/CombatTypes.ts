@@ -1,3 +1,4 @@
+import { NOTHING_TYPE, NOTHING } from './../Utility';
 import { CombatCapable } from './../Models/Entities';
 import { Weapon, Item, Player, NPC } from "../Models/Entities";
 
@@ -10,8 +11,10 @@ export const isCombatAttack = <T>(target: T | CombatAttack): target is CombatAtt
   (target as CombatAttack).actionType === CombatActionType.ATTACK
 export interface CombatAttack {
   actionType: CombatActionType.ATTACK,
-  weapon: Weapon
+  weapon: Weapon | NOTHING_TYPE
 }
+
+export const BASIC_ATTACK: CombatAttack = {actionType: CombatActionType.ATTACK, weapon: NOTHING}
 
 export const isCombatItemUse = <T>(target: T | CombatItemUse): target is CombatItemUse => //TODO Generics necessary?
   (target as CombatItemUse).actionType === CombatActionType.ITEM_USE

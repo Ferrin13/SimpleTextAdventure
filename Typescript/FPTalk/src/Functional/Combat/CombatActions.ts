@@ -1,12 +1,10 @@
-import { floatToString } from './../Utility';
-import { CombatCapable, isPlayer } from './../Models/Entities';
 import { getAttackEffects } from './CombatEngine';
 import { PlayerActions } from '../Core/PlayerActions';
-import { NPC, Weapon, Item, Player, isWeapon } from '../Models/Entities';
-import { logAfterDelay, createPrompt, NOTHING_TYPE, NOTHING, isNothing } from '../Utility';
+import { NPC, Weapon, Item, Player, isWeapon, isPlayer, CombatCapable, Named } from '../Models/Entities';
+import { logAfterDelay, createPrompt, NOTHING_TYPE, NOTHING, isNothing, floatToString } from '../Utility';
 import { CombatResult, combatVictory, combatDefeat} from '../Models/GameEvents';
 import { DEFAULT_LOG_WAIT } from '../../Imperative/Utility';
-import { CombatActionType, CombatAttack, CombatItemUse, AttackEffects, CombatRoundOutcome, CombatRoundState, isCombatAttack, isCombatItemUse, AttackOutcome } from './CombatTypes';
+import { CombatActionType, CombatAttack, CombatItemUse, AttackEffects, CombatRoundOutcome, CombatRoundState, isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './CombatTypes';
 
 export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult> => {
   await logAfterDelay(`${player.name} initiates combat with ${npc.name} (Health: ${npc.health}, Attack Damage: ${npc.baseAttackDamage})`, DEFAULT_LOG_WAIT);
@@ -23,12 +21,21 @@ const combatRound = async (player: Player, npc: NPC, ): Promise<CombatResult> =>
       PlayerActions.printInventory(player);
       return combatRound(player, npc)
     }
-    const actionOutcome = executePlayerAction(player, action, npc);
-    switch(actionOutcome.roundState) {
+    const playerActionOutcome = executePlayerAction(player, action, npc);
+    switch(playerActionOutcome.roundState) {
       case CombatRoundState.ATTACKER_DEFEATED: return onCombatDefeat(player, npc)
       case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(player, npc)
       case CombatRoundState.DEFENDER_DEFEATED: return onCombatVictory(player, npc)
-      default: return combatRound(actionOutcome.attacker, actionOutcome.defender)
+      default:
+    }
+    const postAttackPlayer = playerActionOutcome.attacker;
+    const postAttackNpc = playerActionOutcome.defender;
+    const npcActionOutcome = executeAttack(postAttackNpc, BASIC_ATTACK, postAttackPlayer);
+    switch(npcActionOutcome.roundState) {
+      case CombatRoundState.ATTACKER_DEFEATED: return onCombatVictory(postAttackPlayer, postAttackNpc)
+      case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(postAttackPlayer, postAttackNpc)
+      case CombatRoundState.DEFENDER_DEFEATED: return onCombatDefeat(postAttackPlayer, postAttackNpc)
+      default: return combatRound(npcActionOutcome.defender, npcActionOutcome.attacker)
     }
   })
 }
@@ -36,32 +43,51 @@ const combatRound = async (player: Player, npc: NPC, ): Promise<CombatResult> =>
 const executePlayerAction = (player: Player, action: CombatAction, target: NPC): CombatRoundOutcome<Player, NPC> => {
   //Need !isPlayer for type narrowing (Also, can't use swtich(true) because type narrowing doesn't occur)
   if (isCombatAttack(action) && !isPlayer(target)) {
-    return executePlayerAttack(player, action, target)
+    // return executePlayerAttack(player, action, target)
+    return executeAttack(player, action, target)
   } else if (isCombatItemUse(action)) {
     return executePlayerItemUse(player, action, target)
   }
   throw new Error(`Invalid combat action: ${JSON.stringify(action)}`)
 }
 
-const executePlayerAttack = (player: Player, action: CombatAttack, target: NPC): CombatRoundOutcome<Player, NPC> => {
-  const attackEffects = getAttackEffects(player, target, action.weapon);
-  const modifiedPlayer = attackEffects.attackerChange(player);
-  const modifiedTarget = attackEffects.defenderChange(target);
-  const damageDone = target.health - modifiedTarget.health;
-  const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, player.name, target.name, damageDone);
+// const executePlayerAttack = (player: Player, action: CombatAttack, target: NPC): CombatRoundOutcome<Player, NPC> => {
+//   const attackEffects = getAttackEffects(player, target, action.weapon);
+//   const modifiedPlayer = attackEffects.attackerChange(player);
+//   const modifiedTarget = attackEffects.defenderChange(target);
+//   const damageDone = target.health - modifiedTarget.health;
+//   const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, player.name, target.name, damageDone);
+//   console.log(attackMessage);
+//   return {
+//     attacker: modifiedPlayer,
+//     defender: modifiedTarget,
+//     roundState: getRoundState(modifiedPlayer, modifiedTarget)
+//   }
+// }
+
+const executeAttack = <TAttacker extends CombatCapable & Named, TDefender extends CombatCapable & Named>(
+  attacker: TAttacker,
+  action: CombatAttack,
+  defender: TDefender
+): CombatRoundOutcome<TAttacker, TDefender> => {
+  const attackEffects = getAttackEffects(attacker, defender, action.weapon);
+  const modifiedAttacker = attackEffects.attackerChange(attacker);
+  const modifiedDefender = attackEffects.defenderChange(defender);
+  const damageDone = defender.health - modifiedDefender.health;
+  const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, action.weapon, attacker.name, defender.name, damageDone);
   console.log(attackMessage);
   return {
-    attacker: modifiedPlayer,
-    defender: modifiedTarget,
-    roundState: getRoundState(modifiedPlayer, modifiedTarget)
+    attacker: modifiedAttacker,
+    defender: modifiedDefender,
+    roundState: getRoundState(modifiedAttacker, modifiedDefender)
   }
 }
 
-const attackOutcomeDescription = (attackOutcome: AttackOutcome, attackerName: string, defenderName: string, damage: number): string => {
+const attackOutcomeDescription = (attackOutcome: AttackOutcome, weapon: Weapon | NOTHING_TYPE, attackerName: string, defenderName: string, damage: number): string => {
   switch (attackOutcome) {
-    case (AttackOutcome.CRITICAL): return `${attackerName}'s attack critically strikes for ${floatToString(damage)} damage!!!`
-    case (AttackOutcome.HIT): return `${attackerName}'s attack hits for ${floatToString(damage)} damage!!!`
-    case (AttackOutcome.DODGED): return `${defenderName} dodges the attack!`
+    case (AttackOutcome.CRITICAL): return `${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name} critically strikes for ${floatToString(damage)} damage!!!`
+    case (AttackOutcome.HIT): return `${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name} hits for ${floatToString(damage)} damage.`
+    case (AttackOutcome.DODGED): return `${defenderName} dodges ${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name}!`
   }
 }
 
@@ -89,7 +115,7 @@ const onCombatVictory = async (player: Player, enemy: NPC, victoryInfo?: string)
 }
 
 const onCombatDefeat = async (player: Player, enemy: NPC, victoryInfo?: string): Promise<CombatResult> => {
-  await logAfterDelay(`${player} is defeated by ${enemy.name}`, 200);
+  await logAfterDelay(`${player.name} is defeated by ${enemy.name}`, 200);
   return combatDefeat(player);
 }
 

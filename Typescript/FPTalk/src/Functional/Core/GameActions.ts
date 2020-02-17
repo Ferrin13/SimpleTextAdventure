@@ -6,15 +6,17 @@ import { fightEnemy } from '../Combat/CombatActions';
 
 export const traverseDungeon = async (player: Player, dungeon: Dungeon): Promise<void> => {
   await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}...`, 500);
-  // await logAfterDelay(` ${dungeon.boss.name!}!!!`, DEFAULT_LOG_WAIT);
   await logAfterDelay(`${dungeon.boss.name} has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
 
   const combatResult = await asyncReduce(
     dungeon.minions,
-    async (prevResult, npc) => prevResult.playerVictory ? await fightEnemy(player, npc) : Promise.resolve(prevResult),
+    async (prevResult, npc) => prevResult.playerVictory ? await fightEnemy(prevResult.player, npc) : Promise.resolve(prevResult),
     combatVictory(player)
   )
-
+  if(!combatResult.playerVictory) {
+    await logAfterDelay(`You died, better luck next time`, 1000);
+    return;
+  }
   await logAfterDelay(`You defeated ${dungeon.minions.length} minions and have now reached ${dungeon.boss.name}!`, DEFAULT_LOG_WAIT);
 
   return fightEnemy(player, dungeon.boss).then(async result => {

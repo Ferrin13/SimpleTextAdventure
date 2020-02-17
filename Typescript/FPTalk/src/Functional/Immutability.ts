@@ -13,7 +13,7 @@ const mrBadGuy: NPC = {
 const earlyDungeon = {
   name: "Easy Dungeon",
   difficulty: 2,
-  minions: getRandomMinionsWithDifficulty([1, 2, 6, 3, 5]),
+  minions: getRandomMinionsWithDifficulty([6, 2, 6, 3, 5]),
   boss: mrBadGuy
 };
 
