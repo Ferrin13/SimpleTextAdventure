@@ -12,6 +12,8 @@ export const isNothing = <T>(target: T | NOTHING_TYPE): target is NOTHING_TYPE =
   return (target as NOTHING_TYPE).symbol === NOTHING_SYMBOL
 }
 
+export const floatToString = (number: Number): string => number.toFixed(1);
+
 export const createPrompt = (promptText: string): Promise<string> => {
   const readLineInterface = readline.createInterface({
     input: process.stdin,

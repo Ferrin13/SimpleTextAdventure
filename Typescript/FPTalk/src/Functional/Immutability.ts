@@ -7,7 +7,7 @@ const mrBadGuy: NPC = {
   name: "Mr. Bad Guy", 
   species: "Human",
   health: 100,
-  attackDamage: 10
+  baseAttackDamage: 10
 }
 
 const earlyDungeon = {

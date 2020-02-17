@@ -32,9 +32,9 @@ export enum CombatRoundState {
   NEITHER_DEFEATED
 }
 
-export interface CombatRoundOutcome {
-  attacker: CombatCapable,
-  defender: CombatCapable,
+export interface CombatRoundOutcome<TAttacker extends CombatCapable = CombatCapable, TDefender extends CombatCapable = CombatCapable> {
+  attacker: TAttacker,
+  defender: TDefender,
   roundState: CombatRoundState
 }
 

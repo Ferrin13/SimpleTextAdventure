@@ -4,6 +4,7 @@ export const STARTING_PLAYER: Player = {
   name: "Ferrin",
   health: 100,
   maxHealth: 100,
+  baseAttackDamage: 10,
   inventoryItems: [
     {
       name: 'Health Potion',

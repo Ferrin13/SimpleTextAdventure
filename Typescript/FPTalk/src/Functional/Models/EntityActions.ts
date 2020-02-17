@@ -11,7 +11,7 @@ export class NPCActions {
   static setAttackDamage = (npc: NPC, newAttackDamage: number): NPC => {
     return {
       ...npc,
-      attackDamage: newAttackDamage
+      baseAttackDamage: newAttackDamage
     }
   }
 
@@ -25,7 +25,7 @@ export class NPCActions {
   static currySetAttackDamage = (newAttackDamage: number) => (npc: NPC): NPC => {
     return {
       ...npc,
-      attackDamage: newAttackDamage
+      baseAttackDamage: newAttackDamage
     }
   }
 }

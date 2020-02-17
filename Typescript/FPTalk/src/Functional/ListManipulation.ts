@@ -15,7 +15,7 @@ export function getRandomMinionsWithDifficulty(difficulties: DifficultyLevel[]):
     name: getRandomListElement(POSSIBLE_MINION_NAMES),
     species: getRandomListElement(POSSIBLE_MINION_SPECIES),
     health: minionHealthByDifficulty(difficulty),
-    attackDamage: minionDamageByDifficulty(difficulty)
+    baseAttackDamage: minionDamageByDifficulty(difficulty)
   }))
 }
 

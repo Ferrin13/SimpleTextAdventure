@@ -6,8 +6,8 @@ import { fightEnemy } from '../Combat/CombatActions';
 
 export const traverseDungeon = async (player: Player, dungeon: Dungeon): Promise<void> => {
   await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}...`, 500);
-  await logAfterDelay(`You encounter... ${dungeon.boss.name!}!!!`, DEFAULT_LOG_WAIT);
-  await logAfterDelay(`He has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
+  // await logAfterDelay(` ${dungeon.boss.name!}!!!`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`${dungeon.boss.name} has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
 
   const combatResult = await asyncReduce(
     dungeon.minions,

@@ -7,7 +7,7 @@ const MAX_ARMOR_DR = .8;
 const CRIT_MULTIPLIER = 2;
 
 const DEFAULT_ARMOR = 10; //TODO Replace with defender armor when that is added
-const DEFAULT_CRIT_CHANCE = .5;
+const DEFAULT_CRIT_CHANCE = .25;
 const DEFAULT_DODGE_CHANCE = .25;
 
 export const getAttackEffects = <TAttacker extends CombatCapable, TDefedner extends CombatCapable>(
@@ -34,7 +34,7 @@ const handleCrit = <TAttacker extends CombatCapable, TDefender extends CombatCap
   weapon: Weapon | NOTHING_TYPE): AttackEffects<TAttacker, TDefender>  => {
   const netAttackDamage = attackerCritNetDamage(attacker, defender, weapon);
   return {
-    attackOutcome: AttackOutcome.HIT,
+    attackOutcome: AttackOutcome.CRITICAL,
     attackerChange: attacker => attacker,
     defenderChange: defender => ({
       ...defender,
