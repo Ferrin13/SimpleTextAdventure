@@ -1,29 +1,59 @@
 import { Player } from "./Player";
+export const isPlayer = (target: Player | NPC): target is Player => {
+  return !!((target as Player).getItems) //TODO May need to change if NPC is more complex
+}
 
-export class NPC {
-  name: string;
-  species: string;
-  attackDamage: number;
-  health: number;
+export const isNpc = (target: Player | NPC): target is NPC => {
+  return !!((target as NPC).getSpecies) //TODO May need to change if Player becomes more complex
+}
+export class NPC implements ICombatCapable {
+  private name: string;
+  private species: string;
+  private baseAttackDamage: number;
+  private health: number;
 
 
-  constructor(name: string, species: string, attackDamage: number, health: number) {
+  constructor(name: string, species: string, baseAttackDamage: number, health: number) {
     this.name = name;
     this.species = species;
-    this.attackDamage = attackDamage;
+    this.baseAttackDamage = baseAttackDamage;
     this.health = health;
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  setName(name: string) {
+    this.name = name;
+  }
+
+  getSpecies() {
+    return this.species;
+  }
+
+  setSpecies(species: string) {
+    this.species = species;
+  }
+
+  getBaseAttackDamage() {
+    return this.baseAttackDamage;
+  }
+
+  setBaseAttackDamage(attackDamage: number): void {
+    this.baseAttackDamage = attackDamage;
+  }
+
+  getHealth() {
+    return this.health;
   }
 
   setHealth(health: number): void {
     this.health = health;
   }
 
-  setAttackDamage(attackDamage: number): void {
-    this.attackDamage = attackDamage;
-  }
-
   toString(): string {
-    return `${this.name}, ${this.species}, ${this.attackDamage}, ${this.health}`
+    return `${this.name}, ${this.species}, ${this.baseAttackDamage}, ${this.health}`
   }
 }
 
@@ -67,4 +97,9 @@ export class Item {
   constructor(name: string) {
     this.name = name;
   }
+}
+
+export interface ICombatCapable {
+  getHealth(): number,
+  getBaseAttackDamage(): number
 }

@@ -8,7 +8,7 @@ earlyDungeon.addMinions(getRandomMinionsWithDifficulty([1, 2, 6, 3, 5]))
 
 const harderMyBadGuy = mrBadGuy; //Bug
 harderMyBadGuy.setHealth(1000);
-harderMyBadGuy.setAttackDamage(100);
+harderMyBadGuy.setBaseAttackDamage(100);
 
 const laterDungeon = new Dungeon("Hard Dungeon", 9, harderMyBadGuy);
 

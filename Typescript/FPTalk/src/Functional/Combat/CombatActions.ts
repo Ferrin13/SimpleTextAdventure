@@ -1,10 +1,11 @@
 import { getAttackEffects } from './CombatEngine';
 import { PlayerActions } from '../Core/PlayerActions';
 import { NPC, Weapon, Item, Player, isWeapon, isPlayer, CombatCapable, Named } from '../Models/Entities';
-import { logAfterDelay, createPrompt, NOTHING_TYPE, NOTHING, isNothing, floatToString } from '../Utility';
+import { logAfterDelay, createPrompt } from '../Utility';
 import { CombatResult, combatVictory, combatDefeat} from '../Models/GameEvents';
 import { DEFAULT_LOG_WAIT } from '../../Imperative/Utility';
 import { CombatActionType, CombatAttack, CombatItemUse, AttackEffects, CombatRoundOutcome, CombatRoundState, isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './CombatTypes';
+import { isNothing, NOTHING_TYPE, NOTHING, floatToString } from '../../Shared/Utility';
 
 export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult> => {
   await logAfterDelay(`${player.name} initiates combat with ${npc.name} (Health: ${npc.health}, Attack Damage: ${npc.baseAttackDamage})`, DEFAULT_LOG_WAIT);

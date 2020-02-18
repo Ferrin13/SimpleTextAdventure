@@ -1,7 +1,13 @@
+import { NOTHING } from './../../Shared/Utility';
+import { npcAttackEffects } from './../Combat/CombatEngineWrapper';
+import { isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './../../Functional/Combat/CombatTypes';
 import { CombatResult, STANDARD_COMBAT_VICTORY, STANDARD_COMBAT_DEFEAT } from '../Models/GameEvents';
 import { NPC, Weapon, Item, isWeapon } from '../Models/Entities';
-import { createPrompt, logAfterDelay, DEFAULT_LOG_WAIT, isNoResult, NO_RESULT_TYPE, NO_RESULT } from '../Utility';
+import { createPrompt, logAfterDelay, DEFAULT_LOG_WAIT } from '../Utility';
 import { Player } from '../Models/Player';
+import { getAttackEffects } from '../../Functional/Combat/CombatEngine';
+import { playerAttackEffects, CombatRoundState } from '../Combat/CombatEngineWrapper';
+import { NOTHING_TYPE, isNothing, floatToString } from '../../Shared/Utility';
 
 enum CombatActionType {
   ATTACK,
@@ -10,7 +16,7 @@ enum CombatActionType {
 
 interface CombatAttack {
   actionType: CombatActionType.ATTACK,
-  weapon: Weapon
+  weapon: Weapon | NOTHING_TYPE
 }
 
 interface CombatItemUse {
@@ -33,19 +39,23 @@ type CombatAction = CombatAttack | CombatItemUse;
 export class CombatEngagement {
   player: Player;
   npc: NPC;
+  inCombat: boolean;
+
   constructor(player: Player, npc: NPC) {
     this.player = player;
     this.npc = npc;
+    this.inCombat = false;
   }
 
   initiate = async (): Promise<CombatResult> => {
-    await logAfterDelay(`You initiate combat with ${this.npc.name} (Health: ${this.npc.health}, Attack Damage: ${this.npc.attackDamage})`, DEFAULT_LOG_WAIT);
+    await logAfterDelay(`You initiate combat with ${this.npc.getName()} (Health: ${this.npc.getHealth()}, Attack Damage: ${this.npc.getBaseAttackDamage()})`, DEFAULT_LOG_WAIT);
     return this.combatRound()
   }
 
   private async combatRound(): Promise<CombatResult> {
-    let inCombat = true;
-    while(inCombat) {
+    this.inCombat = true;
+    while(this.inCombat) {
+      await this.printEngagementState();
       const input = await createPrompt('Choose a weapon or item to use\n')
       const action = this.inputHandler(input);
       if(isInvalidInput(action)) {
@@ -53,33 +63,42 @@ export class CombatEngagement {
         await this.player.printInventory();
         continue;
       }
-      inCombat = false;
+      this.executePlayerAction(action)
+      if(!this.shouldContinueCombat()) {
+        this.inCombat = false;
+      } else {
+        this.executeNpcAttack(BASIC_ATTACK)
+      }
+      if(!this.shouldContinueCombat()) {
+       this.inCombat = false;   
+      }
     }
-    await logAfterDelay(`You slay ${this.npc.name}`, DEFAULT_LOG_WAIT);
-    return STANDARD_COMBAT_VICTORY
+    // await logAfterDelay(`You slay ${this.npc.getName()}`, DEFAULT_LOG_WAIT);
+    // return STANDARD_COMBAT_VICTORY
+    return this.handleFinalCombatState();
   }
 
   private inputHandler(playerInput: string) : CombatAction | INVALID_INPUT_TYPE  {
     const normalizedInput = playerInput.toLocaleLowerCase();
     const actionEntity = this.getActionEntity(normalizedInput);
-    if(isNoResult(actionEntity)) return INVALID_INPUT
+    if(isNothing(actionEntity)) return INVALID_INPUT
 
     return this.combatActionCreator(actionEntity)
   }
   
-  private getActionEntity(normalizedInput: string): ActionEntity | NO_RESULT_TYPE {
+  private getActionEntity(normalizedInput: string): ActionEntity | NOTHING_TYPE {
     const weapon = this.matchEntityByName(normalizedInput, this.player.getWeapons())
-    if(!isNoResult(weapon)) return weapon;
+    if(!isNothing(weapon)) return weapon;
 
     const item = this.matchEntityByName(normalizedInput, this.player.getItems())
-    if(!isNoResult(item)) return item;
+    if(!isNothing(item)) return item;
 
-    return NO_RESULT
+    return NOTHING
   }
 
-  private matchEntityByName<T extends {name: string}>(normalizedInput: string, entities: T[]): T | NO_RESULT_TYPE {
+  private matchEntityByName<T extends {name: string}>(normalizedInput: string, entities: T[]): T | NOTHING_TYPE {
     const entity = entities.find(w => w.name.toLocaleLowerCase() === normalizedInput)
-    return entity ?? NO_RESULT;
+    return entity ?? NOTHING;
   }
 
   private combatActionCreator (entity: Weapon | Item): CombatAction {
@@ -93,6 +112,79 @@ export class CombatEngagement {
         actionType: CombatActionType.ITEM_USE,
         item: entity
       }
+    }
+  }
+
+  private executePlayerAction(action: CombatAction) {
+    //Can't use swtich(true) because type narrowing doesn't occur 
+    if(isCombatAttack(action)) {
+      this.executePlayerAttack(action);
+    } else if(isCombatItemUse(action)) {
+      console.log("NOT IMPLEMENTED");
+    } else {
+      throw new Error("Invalid action pased to execute player action ");
+    }
+  }
+
+  private executePlayerAttack(attack: CombatAttack) {
+    const attackEffects = playerAttackEffects(this.player, this.npc, attack.weapon);
+    const previousNpcHealth = this.npc.getHealth();
+    attackEffects.attackerChange(this.player);
+    attackEffects.defenderChange(this.npc);
+    const damageDone = previousNpcHealth - this.npc.getHealth();
+    const attackMessage = this.attackOutcomeDescription(attackEffects.attackOutcome, attack.weapon, this.player.getName(), this.npc.getName(), damageDone);
+    console.log(attackMessage);
+  }
+
+  private executeNpcAttack(attack: CombatAttack) {
+    const attackEffects = npcAttackEffects(this.npc, this.player, attack.weapon);
+    const previousPlayerHealth = this.player.getHealth();
+    attackEffects.attackerChange(this.npc);
+    attackEffects.defenderChange(this.player);
+    const damageDone = previousPlayerHealth - this.player.getHealth();
+    const attackMessage = this.attackOutcomeDescription(attackEffects.attackOutcome, attack.weapon, this.npc.getName(), this.player.getName(), damageDone);
+    console.log(attackMessage);
+  }
+
+  private printEngagementState(): Promise<void> {
+    return logAfterDelay(
+      `\nCombat round started between ${this.player.getName()}: (Health: ${floatToString(this.player.getHealth())}/${floatToString(this.player.getMaxHealth())}) ` +
+      `and ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`, DEFAULT_LOG_WAIT);
+  }
+
+  private attackOutcomeDescription (attackOutcome: AttackOutcome, weapon: Weapon | NOTHING_TYPE, attackerName: string, defenderName: string, damage: number): string {
+    switch (attackOutcome) {
+      case (AttackOutcome.CRITICAL): return `${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name} critically strikes for ${floatToString(damage)} damage!!!`
+      case (AttackOutcome.HIT): return `${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name} hits for ${floatToString(damage)} damage.`
+      case (AttackOutcome.DODGED): return `${defenderName} dodges ${attackerName}'s ${isNothing(weapon) ? 'basic attack' : 'attack with ' + weapon.name}!`
+    }
+  }
+
+  private getCombatState(): CombatRoundState {
+    switch (true) {
+      case this.player.getHealth() <= 0 && this.npc.getHealth() <= 0: return CombatRoundState.BOTH_DEFEATED
+      case this.player.getHealth() <= 0: return CombatRoundState.PLAYER_DEFEATED
+      case this.npc.getHealth() <= 0: return CombatRoundState.NPC_DEFEATED
+      default: return CombatRoundState.NEITHER_DEFEATED
+    }
+  }
+
+  private shouldContinueCombat(): boolean {
+    return this.getCombatState() === CombatRoundState.NEITHER_DEFEATED
+  }
+
+  private async handleFinalCombatState(): Promise<CombatResult> {
+    const finalCombatState = this.getCombatState();
+    switch(finalCombatState) {
+      case CombatRoundState.BOTH_DEFEATED:
+      case CombatRoundState.PLAYER_DEFEATED:
+        await logAfterDelay(`${this.player.getName()} was slain by ${this.npc.getName()!}`, DEFAULT_LOG_WAIT);
+        return STANDARD_COMBAT_DEFEAT;
+      case CombatRoundState.NPC_DEFEATED: 
+        await logAfterDelay(`${this.player.getName()} slays ${this.npc.getName()}`, DEFAULT_LOG_WAIT);
+        return STANDARD_COMBAT_VICTORY;
+      default:
+        throw new Error("Invalid final combat state");
     }
   }
 }

@@ -23,7 +23,7 @@ export class DungeonTraverser {
     const minionCombatResult = await minionCombat.fightMinions();
 
     if(minionCombatResult.playerVictory) {
-      await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')} and have now reached ${this.dungeon.boss.name}!`, DEFAULT_LOG_WAIT);
+      await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')} and have now reached ${this.dungeon.boss.getName()}!`, DEFAULT_LOG_WAIT);
     } else {
       await logAfterDelay(`You were defeated in ${this.dungeon.name}!`, DEFAULT_LOG_WAIT);
       await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')}, ${this.dungeon.minions.length} remain`, DEFAULT_LOG_WAIT);
@@ -42,9 +42,9 @@ export class DungeonTraverser {
   }
 
   private async displayDungeonInformation(): Promise<void> {
-    await logAfterDelay(`You have entered the fearsome ${this.dungeon.boss.name!}'s ${this.dungeon.name}...`, 500);
-    await logAfterDelay(`It's boss is ${this.dungeon.boss.name!}!!!`, DEFAULT_LOG_WAIT);
-    await logAfterDelay(`He has ${this.dungeon.boss.health} health and does ${this.dungeon.boss.attackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
+    await logAfterDelay(`You have entered the fearsome ${this.dungeon.boss.getName()!}'s ${this.dungeon.name}...`, 500);
+    await logAfterDelay(`It's boss is ${this.dungeon.boss.getName()!}!!!`, DEFAULT_LOG_WAIT);
+    await logAfterDelay(`He has ${this.dungeon.boss.getHealth()} health and does ${this.dungeon.boss.getBaseAttackDamage()} damage per attack!`, DEFAULT_LOG_WAIT);
   }
 }
 

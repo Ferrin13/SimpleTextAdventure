@@ -1,4 +1,4 @@
-import { NOTHING, NOTHING_TYPE, isNothing } from './../Utility';
+import { NOTHING, NOTHING_TYPE, isNothing } from './../../Shared/Utility';
 import { Weapon } from './../../Imperative/Models/Entities';
 import { AttackEffects, AttackOutcome } from './CombatTypes';
 import { CombatCapable } from './../Models/Entities';
