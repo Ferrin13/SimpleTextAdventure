@@ -1,4 +1,4 @@
-// export enum MinionDifficulty {
-//   EASY,
-//   HARD
-// }
+export enum WeaponType {
+  Physical,
+  Magical
+}

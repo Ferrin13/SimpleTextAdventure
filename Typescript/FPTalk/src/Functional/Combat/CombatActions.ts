@@ -2,17 +2,23 @@ import { getAttackEffects } from './CombatEngine';
 import { PlayerActions } from '../Core/PlayerActions';
 import { NPC, Weapon, Item, Player, isWeapon, isPlayer, CombatCapable, Named } from '../Models/Entities';
 import { logAfterDelay, createPrompt } from '../Utility';
-import { CombatResult, combatVictory, combatDefeat} from '../Models/GameEvents';
+import { CombatResult, combatVictory, combatDefeat, CombatOutcome} from '../Models/GameEvents';
 import { DEFAULT_LOG_WAIT } from '../../Imperative/Utility';
 import { CombatActionType, CombatAttack, CombatItemUse, AttackEffects, CombatRoundOutcome, CombatRoundState, isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './CombatTypes';
 import { isNothing, NOTHING_TYPE, NOTHING, floatToString } from '../../Shared/Utility';
 
 export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult> => {
-  await logAfterDelay(`${player.name} initiates combat with ${npc.name} (Health: ${npc.health}, Attack Damage: ${npc.baseAttackDamage})`, DEFAULT_LOG_WAIT);
+  const engageCombat = await promptToEngage(player, npc);
+  if(!engageCombat) return {
+    outcome: CombatOutcome.RETREAT,
+    player
+  };
+
+  await logAfterDelay(`${player.name} attacks ${npc.name}!`, DEFAULT_LOG_WAIT);
   return combatRound(player, npc)
 }
 
-const combatRound = async (player: Player, npc: NPC, ): Promise<CombatResult> => {
+const combatRound = async (player: Player, npc: NPC): Promise<CombatResult> => {
   await logAfterDelay(combatRoundStartDescription(player, npc), 200);
 
   return createPrompt('Choose a weapon or item to use\n').then(async input => {
@@ -44,27 +50,12 @@ const combatRound = async (player: Player, npc: NPC, ): Promise<CombatResult> =>
 const executePlayerAction = (player: Player, action: CombatAction, target: NPC): CombatRoundOutcome<Player, NPC> => {
   //Need !isPlayer for type narrowing (Also, can't use swtich(true) because type narrowing doesn't occur)
   if (isCombatAttack(action) && !isPlayer(target)) {
-    // return executePlayerAttack(player, action, target)
     return executeAttack(player, action, target)
   } else if (isCombatItemUse(action)) {
     return executePlayerItemUse(player, action, target)
   }
   throw new Error(`Invalid combat action: ${JSON.stringify(action)}`)
 }
-
-// const executePlayerAttack = (player: Player, action: CombatAttack, target: NPC): CombatRoundOutcome<Player, NPC> => {
-//   const attackEffects = getAttackEffects(player, target, action.weapon);
-//   const modifiedPlayer = attackEffects.attackerChange(player);
-//   const modifiedTarget = attackEffects.defenderChange(target);
-//   const damageDone = target.health - modifiedTarget.health;
-//   const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, player.name, target.name, damageDone);
-//   console.log(attackMessage);
-//   return {
-//     attacker: modifiedPlayer,
-//     defender: modifiedTarget,
-//     roundState: getRoundState(modifiedPlayer, modifiedTarget)
-//   }
-// }
 
 const executeAttack = <TAttacker extends CombatCapable & Named, TDefender extends CombatCapable & Named>(
   attacker: TAttacker,
@@ -159,8 +150,23 @@ const combatActionCreator = (entity: Weapon | Item): CombatAction => {
   }
 }
 
+const promptToEngage = async (player: Player, npc: NPC): Promise<boolean> =>
+  await createPrompt(`You encounter ${npc.name}. The current combat situation is: ${playerAndNpcState(player, npc)} \nDo you wish to attack or retreat?`).then(async input => {
+    switch(input.toLocaleLowerCase()) {
+      case 'retreat': return false;
+      case 'attack': return true;
+      default: {
+        console.log("Please choose either 'Attack' or 'Retreat`\n");
+        return promptToEngage(player, npc);
+      }
+    }
+  })
+
 const combatRoundStartDescription = (player: Player, npc: NPC): string =>
-  `\nCombat round started between ${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}) and ${npc.name}: (Health: ${floatToString(npc.health)})`
+  `\nCombat round started between ${playerAndNpcState(player, npc)}`
+
+const playerAndNpcState = (player: Player, npc: NPC): string =>
+  `${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}) and ${npc.name}: (Health: ${floatToString(npc.health)})`
 
 const INVALID_INPUT_SYMBOL = Symbol()
 interface INVALID_INPUT_TYPE {

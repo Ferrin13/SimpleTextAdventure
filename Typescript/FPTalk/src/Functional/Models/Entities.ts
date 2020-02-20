@@ -1,3 +1,4 @@
+import { WeaponType } from './Enums';
 export const isPlayer = (target: Player | NPC): target is Player => {
   return !!((target as Player).inventoryItems) //TODO May need to change if NPC is more cimplex
 }
@@ -31,6 +32,8 @@ export const isWeapon = (entity: Weapon | Item): entity is Weapon => (entity as 
 export interface Weapon {
   name: string;
   damage: number;
+  weaponType: WeaponType,
+  hidden?: boolean;
 }
 
 export interface Item {

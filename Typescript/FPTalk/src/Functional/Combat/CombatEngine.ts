@@ -1,7 +1,7 @@
+import { WeaponType } from './../Models/Enums';
 import { NOTHING, NOTHING_TYPE, isNothing } from './../../Shared/Utility';
-import { Weapon } from './../../Imperative/Models/Entities';
 import { AttackEffects, AttackOutcome } from './CombatTypes';
-import { CombatCapable } from './../Models/Entities';
+import { CombatCapable, Weapon } from './../Models/Entities';
 const MAX_ARMOR = 100;
 const MAX_ARMOR_DR = .8;
 const CRIT_MULTIPLIER = 2;
@@ -62,12 +62,19 @@ const attackerCritNetDamage = (attacker: CombatCapable, defender: CombatCapable,
   attackerNormalNetDamage(attacker, defender, weapon) * CRIT_MULTIPLIER;
 
 const attackerNormalNetDamage = (attacker: CombatCapable, defender: CombatCapable, weapon: Weapon | NOTHING_TYPE) =>
-  attackerTotalDamage(attacker, weapon) * (1 - armorDamageReduction(DEFAULT_ARMOR)) //TODO Replace with defender armor when that is added
+  attackerTotalDamage(attacker, weapon) * (1 - defenderDamageReduction(defender, weapon)) 
 
-const attackerTotalDamage = (attacker: CombatCapable, weapon: Weapon | NOTHING_TYPE) => {
-  const weaponDamage = isNothing(weapon) ? 0 : weapon.damage;
-  return attacker.baseAttackDamage + weaponDamage;
-}
+const attackerTotalDamage = (attacker: CombatCapable, weapon: Weapon | NOTHING_TYPE) => 
+  attackerBaseDamage(attacker, weapon) + weaponBaseDamage(weapon)
+
+const attackerBaseDamage = (attacker: CombatCapable, weapon: Weapon | NOTHING_TYPE) => 
+  (isNothing(weapon) || weapon.weaponType == WeaponType.Physical) ? attacker.baseAttackDamage : 0;
+
+const weaponBaseDamage = (weapon: Weapon | NOTHING_TYPE) => 
+  isNothing(weapon) ? 0 : weapon.damage;
+
+const defenderDamageReduction = (defender: CombatCapable, weapon: Weapon | NOTHING_TYPE) => 
+  isMitigatedByArmor(weapon) ? armorDamageReduction(DEFAULT_ARMOR) : 0 //TODO Replace with defender armor when that is added
 
 const armorDamageReduction = (armor: number): number =>
   (armor / MAX_ARMOR) * MAX_ARMOR_DR;
@@ -84,7 +91,7 @@ const getAttackAffect = <TAttacker extends CombatCapable, TDefender extends Comb
 
 const getAttackOutcome = (attacker: CombatCapable, defender: CombatCapable, weapon: Weapon | NOTHING_TYPE) => {
   const rand = Math.random();
-  const dodgeChance = getDodgeChance(defender);
+  const dodgeChance = getDodgeChance(defender, weapon);
   const critChance = getCritChance(attacker, weapon);
   return randNumToAttackOutcome(rand, dodgeChance, critChance)
 }
@@ -99,11 +106,35 @@ const randNumToAttackOutcome = (num: Number, dodgeChance: number, critChance: nu
 }
 
 const getCritChance = (attacker: CombatCapable, weapon: Weapon | NOTHING_TYPE) => {
-  return DEFAULT_CRIT_CHANCE; //TODO Replace with calculation when added
+  return canCrit(weapon) ? DEFAULT_CRIT_CHANCE : 0; //TODO Replace with calculation when added
 }
 
-const getDodgeChance = (defender: CombatCapable) => {
-  return DEFAULT_DODGE_CHANCE; //TODO Replace with calculation when added
+const getDodgeChance = (defender: CombatCapable, weapon: Weapon | NOTHING_TYPE) => {
+  return isDodgeable(weapon) ? DEFAULT_DODGE_CHANCE : 0; //TODO Replace with calculation when added
+}
+
+const isDodgeable = (weapon: Weapon | NOTHING_TYPE) => {
+  if(isNothing(weapon)) return true;
+  switch(weapon.weaponType) {
+    case WeaponType.Physical: return true;
+    case WeaponType.Magical: return false;
+  }
+}
+
+const canCrit = (weapon: Weapon | NOTHING_TYPE) => {
+  if(isNothing(weapon)) return true;
+  switch(weapon.weaponType) {
+    case WeaponType.Physical: return true;
+    case WeaponType.Magical: return false;
+  }
+}
+
+const isMitigatedByArmor = (weapon: Weapon | NOTHING_TYPE) => {
+  if(isNothing(weapon)) return true;
+  switch(weapon.weaponType) {
+    case WeaponType.Physical: return true;
+    case WeaponType.Magical: return false;
+  }
 }
 
 

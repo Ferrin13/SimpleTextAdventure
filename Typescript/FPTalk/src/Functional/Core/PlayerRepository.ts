@@ -1,8 +1,9 @@
 import { Player } from "../Models/Entities";
+import { WeaponType } from "../Models/Enums";
 
 export const STARTING_PLAYER: Player = {
   name: "Ferrin",
-  health: 100,
+  health: 10,
   maxHealth: 100,
   baseAttackDamage: 10,
   inventoryItems: [
@@ -20,7 +21,14 @@ export const STARTING_PLAYER: Player = {
   inventoryWeapons: [
     {
       name: 'Sword',
-      damage: 10
+      damage: 10,
+      weaponType: WeaponType.Physical,
+    },
+    {
+      name: "Avada Kedavra",
+      damage: 10000,
+      weaponType: WeaponType.Magical,
+      hidden: true
     }
   ]
 }

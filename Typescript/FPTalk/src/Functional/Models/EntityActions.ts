@@ -1,31 +1,30 @@
-import { NPC } from "./Entities"
+import { NPC, Dungeon } from "./Entities"
 
 export class NPCActions {
-  static setHealth = (npc: NPC, newHealth: number): NPC => {
-    return {
-      ...npc,
-      health: newHealth
-    }
-  }
+  static setHealth = (npc: NPC, newHealth: number): NPC => ({
+    ...npc,
+    health: newHealth
+  })
 
-  static setAttackDamage = (npc: NPC, newAttackDamage: number): NPC => {
-    return {
-      ...npc,
-      baseAttackDamage: newAttackDamage
-    }
-  }
+  static setAttackDamage = (npc: NPC, newAttackDamage: number): NPC => ({
+    ...npc,
+    baseAttackDamage: newAttackDamage
+  })
 
-  static currySetHealth = (newHealth: number) => (npc: NPC): NPC => {
-    return {
-      ...npc,
-      health: newHealth
-    }
-  }
+  static currySetHealth = (newHealth: number) => (npc: NPC): NPC => ({
+    ...npc,
+    health: newHealth
+  })
 
-  static currySetAttackDamage = (newAttackDamage: number) => (npc: NPC): NPC => {
-    return {
-      ...npc,
-      baseAttackDamage: newAttackDamage
-    }
-  }
+  static currySetAttackDamage = (newAttackDamage: number) => (npc: NPC): NPC => ({
+    ...npc,
+    baseAttackDamage: newAttackDamage
+  })
+}
+
+export class DungeonActions {
+  static removeNextMinion = (dungeon: Dungeon): Dungeon => ({
+    ...dungeon,
+    minions: [...dungeon.minions].splice(1)
+  })
 }

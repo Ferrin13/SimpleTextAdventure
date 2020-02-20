@@ -1,3 +1,5 @@
+export const DEFAULT_LOG_WAIT = 500;
+
 const NOTHING_SYMBOL = Symbol()
 export interface NOTHING_TYPE {
   symbol: typeof NOTHING_SYMBOL
