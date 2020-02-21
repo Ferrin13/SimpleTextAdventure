@@ -1,4 +1,10 @@
-export const DEFAULT_LOG_WAIT = 500;
+export const Delay = {
+  VERY_SHORT: 250,
+  SHORT: 500,
+  STANDARD: 1000,
+  LONG: 2000,
+  VERY_LONG: 4000,
+}
 
 const NOTHING_SYMBOL = Symbol()
 export interface NOTHING_TYPE {

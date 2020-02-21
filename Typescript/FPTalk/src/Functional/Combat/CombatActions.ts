@@ -3,9 +3,8 @@ import { PlayerActions } from '../Core/PlayerActions';
 import { NPC, Weapon, Item, Player, isWeapon, isPlayer, CombatCapable, Named } from '../Models/Entities';
 import { logAfterDelay, createPrompt } from '../Utility';
 import { CombatResult, combatVictory, combatDefeat, CombatOutcome} from '../Models/GameEvents';
-import { DEFAULT_LOG_WAIT } from '../../Imperative/Utility';
 import { CombatActionType, CombatAttack, CombatItemUse, AttackEffects, CombatRoundOutcome, CombatRoundState, isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './CombatTypes';
-import { isNothing, NOTHING_TYPE, NOTHING, floatToString } from '../../Shared/Utility';
+import { isNothing, NOTHING_TYPE, NOTHING, floatToString, Delay } from '../../Shared/Utility';
 
 export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult> => {
   const engageCombat = await promptToEngage(player, npc);
@@ -14,12 +13,12 @@ export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult
     player
   };
 
-  await logAfterDelay(`${player.name} attacks ${npc.name}!`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`${player.name} attacks ${npc.name}!`, Delay.STANDARD);
   return combatRound(player, npc)
 }
 
 const combatRound = async (player: Player, npc: NPC): Promise<CombatResult> => {
-  await logAfterDelay(combatRoundStartDescription(player, npc), DEFAULT_LOG_WAIT);
+  await logAfterDelay(combatRoundStartDescription(player, npc), Delay.STANDARD);
 
   return createPrompt('Choose a weapon or item to use\n', 1000).then(async input => {
     const action = inputHandler(input, player);
@@ -71,7 +70,7 @@ const executeAttack = async <TAttacker extends CombatCapable & Named, TDefender 
   const modifiedDefender = attackEffects.defenderChange(defender);
   const damageDone = defender.health - modifiedDefender.health;
   const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, action.weapon, attacker.name, defender.name, damageDone);
-  await logAfterDelay(attackMessage, DEFAULT_LOG_WAIT);
+  await logAfterDelay(attackMessage, Delay.SHORT);
   return {
     attacker: modifiedAttacker,
     defender: modifiedDefender,
@@ -106,12 +105,12 @@ const executePlayerItemUse = (player: Player, action: CombatItemUse, target: NPC
 }
 
 const onCombatVictory = async (player: Player, enemy: NPC, victoryInfo?: string): Promise<CombatResult> => {
-  await logAfterDelay(`${player.name} slays ${enemy.name}!`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`${player.name} slays ${enemy.name}!\n`, Delay.STANDARD);
   return combatVictory(player);
 }
 
 const onCombatDefeat = async (player: Player, enemy: NPC, victoryInfo?: string): Promise<CombatResult> => {
-  await logAfterDelay(`${player.name} is defeated by ${enemy.name}`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`${player.name} is defeated by ${enemy.name}`, Delay.STANDARD);
   return combatDefeat(player);
 }
 
@@ -155,7 +154,7 @@ const combatActionCreator = (entity: Weapon | Item): CombatAction => {
 }
 
 const promptToEngage = async (player: Player, npc: NPC): Promise<boolean> =>
-  await createPrompt(`You encounter ${npc.name}. ${playerAndNpcState(player, npc)} \nDo you wish to attack or retreat?`).then(async input => {
+  await createPrompt(`You encounter ${npc.name}. ${playerAndNpcState(player, npc)} \nDo you wish to attack or retreat?\n`, Delay.STANDARD).then(async input => {
     switch(input.toLocaleLowerCase()) {
       case 'retreat': return false;
       case 'attack': return true;
@@ -170,7 +169,7 @@ const combatRoundStartDescription = (player: Player, npc: NPC): string =>
   `\nCombat round started between ${playerAndNpcState(player, npc)}`
 
 const playerAndNpcState = (player: Player, npc: NPC): string =>
-  `${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}). ${npc.name}: (Health: ${floatToString(npc.health)})`
+  `${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}), ${npc.name}: (Health: ${floatToString(npc.health)})`
 
 const INVALID_INPUT_SYMBOL = Symbol()
 interface INVALID_INPUT_TYPE {

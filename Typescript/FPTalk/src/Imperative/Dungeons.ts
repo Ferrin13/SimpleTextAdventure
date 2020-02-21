@@ -1,5 +1,5 @@
 import { Dungeon, NPC } from "./Models/Entities";
-import { getRandomMinionsWithDifficulty } from "./ListManipulation";
+import { getRandomMinionsWithDifficulty } from "./MinionGenerator";
 
 const mrBadGuy = new NPC("Mr. Bad Guy", "Human", 10, 100);
 

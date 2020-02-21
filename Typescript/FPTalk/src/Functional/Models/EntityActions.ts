@@ -11,15 +11,11 @@ export class NPCActions {
     baseAttackDamage: newAttackDamage
   })
 
-  static currySetHealth = (newHealth: number) => (npc: NPC): NPC => ({
-    ...npc,
-    health: newHealth
-  })
+  static currySetHealth = (newHealth: number) => (npc: NPC): NPC => 
+    NPCActions.setHealth(npc, newHealth);
 
-  static currySetAttackDamage = (newAttackDamage: number) => (npc: NPC): NPC => ({
-    ...npc,
-    baseAttackDamage: newAttackDamage
-  })
+  static currySetAttackDamage = (newAttackDamage: number) => (npc: NPC): NPC => 
+    NPCActions.setAttackDamage(npc, newAttackDamage)
 }
 
 export class DungeonActions {

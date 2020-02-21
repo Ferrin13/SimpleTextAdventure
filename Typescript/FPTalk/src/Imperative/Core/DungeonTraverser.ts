@@ -6,7 +6,7 @@ import { Dungeon, NPC } from "../Models/Entities";
 import { logAfterDelay } from "../Utility";
 import { Player } from '../Models/Player';
 import { CombatEngagement } from './CombatEngagement';
-const DEFAULT_LOG_WAIT = 1000;
+import { Delay } from '../../Shared/Utility';
 
 export class DungeonTraverser {
   player: Player;
@@ -18,9 +18,9 @@ export class DungeonTraverser {
   }
 
   async traverse(): Promise<DungeonResult> {
-    let retryDungeon = true;
+    let retryMinions = true;
     let minionCombatResult: CombatResult;
-    while(retryDungeon) {
+    while(retryMinions) {
       await this.displayDungeonInformation();
 
       const minionCombat = new MinionCombat(this.player, this.dungeon.minions);
@@ -28,17 +28,16 @@ export class DungeonTraverser {
 
       switch(minionCombatResult.combatOutcome) {
         case CombatOutcome.VICTORY: 
-          await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')} and have now reached ${this.dungeon.boss.getName()}!`, DEFAULT_LOG_WAIT);
-          retryDungeon = false;
+          await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')} and have now reached ${this.dungeon.boss.getName()}!\n`, Delay.LONG);
+          retryMinions = false;
           break;
         case CombatOutcome.DEFEAT:
-          await logAfterDelay(`You were defeated in ${this.dungeon.name}!`, DEFAULT_LOG_WAIT);
-          await logAfterDelay(`You defeated ${pluralize(minionCombat.getDefeatedMinions().length, 'minion')}, ${this.dungeon.minions.length} remain`, DEFAULT_LOG_WAIT);
-          retryDungeon = false
+          await logAfterDelay(`You were defeated in ${this.dungeon.name}!`, Delay.LONG);
+          retryMinions = false
           break;
         default:
-          await logAfterDelay(`You retreat to regather your strength`, 1000);
-          await logAfterDelay(`You finish regathering your strenth and are ready to continue`, 3000);
+          await logAfterDelay(`You retreat to regather your strength...`, Delay.STANDARD);
+          await logAfterDelay(`You finish regathering your strenth and are ready to continue\n`, Delay.VERY_LONG);
           this.player.setHealth(this.player.getMaxHealth())
       }
     }
@@ -48,9 +47,9 @@ export class DungeonTraverser {
         false
       )
     }
-
-    await logAfterDelay(`You have reached ${this.dungeon.boss.getName()!}!!!`, DEFAULT_LOG_WAIT);
-    await logAfterDelay(`He has ${this.dungeon.boss.getHealth()} health and does ${this.dungeon.boss.getBaseAttackDamage()} damage per attack!`, DEFAULT_LOG_WAIT);
+    
+    await logAfterDelay(`You have reached ${this.dungeon.boss.getName()!}!!!`, Delay.LONG);
+    await logAfterDelay(`He has ${this.dungeon.boss.getHealth()} health and does ${this.dungeon.boss.getBaseAttackDamage()} damage per attack!`, Delay.STANDARD);
     const bossEngagement = new CombatEngagement(this.player, this.dungeon.boss);
     const bossFightResult = await bossEngagement.initiate();
     return new DungeonResult(
@@ -60,9 +59,7 @@ export class DungeonTraverser {
   }
 
   private async displayDungeonInformation(): Promise<void> {
-    await logAfterDelay(`You have entered the fearsome ${this.dungeon.boss.getName()!}'s ${this.dungeon.name}...`, 500);
-    // await logAfterDelay(`It's boss is ${this.dungeon.boss.getName()!}!!!`, DEFAULT_LOG_WAIT);
-    // await logAfterDelay(`He has ${this.dungeon.boss.getHealth()} health and does ${this.dungeon.boss.getBaseAttackDamage()} damage per attack!`, DEFAULT_LOG_WAIT);
+    await logAfterDelay(`You have entered the fearsome ${this.dungeon.boss.getName()!}'s ${this.dungeon.name}!\n`, Delay.STANDARD);
   }
 }
 

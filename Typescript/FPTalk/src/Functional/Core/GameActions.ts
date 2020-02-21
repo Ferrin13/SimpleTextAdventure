@@ -3,16 +3,15 @@ import { PlayerActions } from './PlayerActions';
 import { logAfterDelay, asyncReduce } from './../Utility';
 import { combatVictory, CombatResult, combatDefeat, isVictory, isDefeat, isRetreat } from './../Models/GameEvents';
 import { Dungeon, NPC, Player } from "../Models/Entities";
-import { DEFAULT_LOG_WAIT } from '../../Imperative/Utility';
 import { fightEnemy } from '../Combat/CombatActions';
+import { Delay } from '../../Shared/Utility';
 
 export type DungeonCombatResult = CombatResult & {
   dungeon: Dungeon
 }
 
 export const traverseDungeon = async (player: Player, dungeon: Dungeon): Promise<CombatResult> => {
-  await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}...`, 1000);
-  // await logAfterDelay(`${dungeon.boss.name} has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}...`, Delay.STANDARD);
 
   const minionCombatResult = await fightMinions(player, dungeon);
   switch(true) {
@@ -35,23 +34,23 @@ const fightMinions = async (player: Player, dungeon: Dungeon): Promise<DungeonCo
 }
 
 const onDefeat = async (combatResult: CombatResult): Promise<CombatResult> => {
-  await logAfterDelay(`You died`, 1000);
+  await logAfterDelay(`You died\n`, Delay.STANDARD);
   return combatResult;
 }
 
 const onRetreat = async (player: Player, dungeon: Dungeon): Promise<CombatResult> => {
-  await logAfterDelay(`You retreat to regather your strength`, 1000);
-  await logAfterDelay(`You finish regathering your strenth and are ready to continue`, 3000);
+  await logAfterDelay(`You retreat to regather your strength...`, Delay.STANDARD);
+  await logAfterDelay(`You finish regathering your strenth and are ready to continue\n`, Delay.VERY_LONG);
   const newPlayer = PlayerActions.setHealth(player, player.maxHealth);
   return traverseDungeon(newPlayer, dungeon)
 }
 
 const fightBoss = async (player: Player, dungeon: Dungeon): Promise<CombatResult> => {
-  await logAfterDelay(`You encounter ${dungeon.boss.name!}!!!`, DEFAULT_LOG_WAIT);
-  await logAfterDelay(`He has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, DEFAULT_LOG_WAIT);
+  await logAfterDelay(`You encounter ${dungeon.boss.name!}!!!`, Delay.LONG);
+  await logAfterDelay(`He has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, Delay.STANDARD);
   return fightEnemy(player, dungeon.boss).then(async result => {
     const dungeonCompletionMessage = `${isVictory(result) ? 'You have survied' : 'You have been defeated in'} ${dungeon.name}!\n`;
-    await logAfterDelay(dungeonCompletionMessage, 3000);
+    await logAfterDelay(dungeonCompletionMessage, Delay.LONG);
     return result;
   })
 }

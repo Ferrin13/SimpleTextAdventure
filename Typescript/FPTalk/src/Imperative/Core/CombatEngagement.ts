@@ -1,10 +1,10 @@
 import { COMBAT_RETREAT } from './../Models/GameEvents';
-import { NOTHING } from './../../Shared/Utility';
+import { NOTHING, Delay } from './../../Shared/Utility';
 import { npcAttackEffects } from './../Combat/CombatEngineWrapper';
 import { isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './../../Functional/Combat/CombatTypes';
 import { CombatResult, STANDARD_COMBAT_VICTORY, STANDARD_COMBAT_DEFEAT } from '../Models/GameEvents';
 import { NPC, Weapon, Item, isWeapon } from '../Models/Entities';
-import { createPrompt, logAfterDelay, DEFAULT_LOG_WAIT } from '../Utility';
+import { createPrompt, logAfterDelay } from '../Utility';
 import { Player } from '../Models/Player';
 import { getAttackEffects } from '../../Functional/Combat/CombatEngine';
 import { playerAttackEffects, CombatRoundState } from '../Combat/CombatEngineWrapper';
@@ -51,12 +51,12 @@ export class CombatEngagement {
   initiate = async (): Promise<CombatResult> => {
     if(!(await this.promptToEngage())) return COMBAT_RETREAT
 
-    await logAfterDelay(`You initiate combat with ${this.npc.getName()} (Health: ${this.npc.getHealth()}, Attack Damage: ${this.npc.getBaseAttackDamage()})`, DEFAULT_LOG_WAIT);
+    await logAfterDelay(`You initiate combat with ${this.npc.getName()} (Health: ${this.npc.getHealth()}, Attack Damage: ${this.npc.getBaseAttackDamage()})`, Delay.STANDARD);
     return this.combatRound()
   }
 
   private async promptToEngage(): Promise<boolean> {
-    return await createPrompt(`You encounter ${this.npc.getName()}. The current combat situation is: ${this.playerAndNpcState()} \nDo you wish to attack or retreat?`).then(async input => {
+    return await createPrompt(`You encounter ${this.npc.getName()}. The current combat situation is: ${this.playerAndNpcState()} \nDo you wish to attack or retreat?\n`, Delay.STANDARD).then(async input => {
       var result: boolean = null;
       while(result === null)
       switch(input.toLocaleLowerCase()) {
@@ -76,14 +76,14 @@ export class CombatEngagement {
   
   private playerAndNpcState(): string {
     return `${this.player.getName()}: (Health: ${floatToString(this.player.getHealth())}/${floatToString(this.player.getMaxHealth())})` +
-      `and ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`
+      `, ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`
   }
 
   private async combatRound(): Promise<CombatResult> {
     this.inCombat = true;
     while(this.inCombat) {
       await this.printEngagementState();
-      const input = await createPrompt('Choose a weapon or item to use\n')
+      const input = await createPrompt('Choose a weapon or item to use\n', Delay.SHORT)
       const action = this.inputHandler(input);
       if(isInvalidInput(action)) {
         console.log(`${input} is not in your inventory, your inventory currently is:`)
@@ -174,7 +174,7 @@ export class CombatEngagement {
   private printEngagementState(): Promise<void> {
     return logAfterDelay(
       `\nCombat round started between ${this.player.getName()}: (Health: ${floatToString(this.player.getHealth())}/${floatToString(this.player.getMaxHealth())}) ` +
-      `and ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`, DEFAULT_LOG_WAIT);
+      `and ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`, Delay.STANDARD);
   }
 
   private attackOutcomeDescription (attackOutcome: AttackOutcome, weapon: Weapon | NOTHING_TYPE, attackerName: string, defenderName: string, damage: number): string {
@@ -203,10 +203,10 @@ export class CombatEngagement {
     switch(finalCombatState) {
       case CombatRoundState.BOTH_DEFEATED:
       case CombatRoundState.PLAYER_DEFEATED:
-        await logAfterDelay(`${this.player.getName()} was slain by ${this.npc.getName()!}`, DEFAULT_LOG_WAIT);
+        await logAfterDelay(`${this.player.getName()} was slain by ${this.npc.getName()}!\n`, Delay.STANDARD);
         return STANDARD_COMBAT_DEFEAT;
       case CombatRoundState.NPC_DEFEATED: 
-        await logAfterDelay(`${this.player.getName()} slays ${this.npc.getName()}`, DEFAULT_LOG_WAIT);
+        await logAfterDelay(`${this.player.getName()} slays ${this.npc.getName()}\n`, Delay.STANDARD);
         return STANDARD_COMBAT_VICTORY;
       default:
         throw new Error("Invalid final combat state");

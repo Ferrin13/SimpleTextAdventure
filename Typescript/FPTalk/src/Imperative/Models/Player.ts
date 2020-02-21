@@ -2,7 +2,8 @@ import { CombatEngagement } from './../Core/CombatEngagement';
 import { CombatResult } from './GameEvents';
 import { Item, Weapon, NPC, ICombatCapable } from "./Entities";
 import { logAfterDelay } from "../../Functional/Utility";
-import { DEFAULT_LOG_WAIT, createPrompt } from "../Utility";
+import { Delay } from '../../Shared/Utility';
+import { WeaponType } from '../../Functional/Models/Enums';
 
 export class Player implements ICombatCapable {
   private name: string;
@@ -18,7 +19,9 @@ export class Player implements ICombatCapable {
     this.maxHealth = maxHealth;
     this.baseAttackDamage = baseAttackDamage;
     this.items = [];
-    this.weapons = [];
+    const hiddenWeapon = new Weapon('Avada Kedavra', 10000, WeaponType.Magical);
+    hiddenWeapon.hidden = true;
+    this.weapons = [hiddenWeapon];
   }
 
   getName() {
@@ -80,7 +83,9 @@ export class Player implements ICombatCapable {
   async printInventory(): Promise<void> {
     await logAfterDelay('Weapons:', 200);
     for(let i = 0; i < this.getWeapons().length; i++) {
-      await logAfterDelay(`\t${this.getWeapons()[i].name}`, 100);
+      if(!this.getWeapons()[i].hidden) {
+        await logAfterDelay(`\t${this.getWeapons()[i].name}`, 100);
+      }
     } 
     await logAfterDelay('Items:', 200);
     for(let i = 0; i < this.getItems().length; i++) {
@@ -88,9 +93,9 @@ export class Player implements ICombatCapable {
     }
   }
 
-  async initiateCombat(npc: NPC): Promise<CombatResult> {
-    await logAfterDelay(`You initiate combat with ${npc.getName()} (Health: ${npc.getHealth()}, Attack Damage: ${npc.getBaseAttackDamage()})`, DEFAULT_LOG_WAIT);
-    const combatEngagement = new CombatEngagement(this, npc);
-    return combatEngagement.initiate();
-  }
+  // async initiateCombat(npc: NPC): Promise<CombatResult> {
+  //   await logAfterDelay(`${this.name} initiates combat with ${npc.getName()} (Health: ${npc.getHealth()}, Attack Damage: ${npc.getBaseAttackDamage()})`, Delay.STANDARD);
+  //   const combatEngagement = new CombatEngagement(this, npc);
+  //   return combatEngagement.initiate();
+  // }
 }

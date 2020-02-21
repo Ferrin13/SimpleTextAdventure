@@ -1,7 +1,7 @@
 import { compose } from './Utility';
 import { Dungeon, NPC } from './Models/Entities';
 import { NPCActions } from './Models/EntityActions';
-import { getRandomMinionsWithDifficulty } from './ListManipulation';
+import { getRandomMinionsWithDifficulty } from './MinionGenerator';
 
 const mrBadGuy: NPC = {
   name: "Mr. Bad Guy", 
@@ -28,7 +28,7 @@ const harderMrBadGuy = NPCActions.setHealth(
 const laterDungeon =  {
   name: "Harder Dungeon",
   difficulty: 9,
-  minions: getRandomMinionsWithDifficulty([10, 7]),
+  minions: getRandomMinionsWithDifficulty([7, 6, 2, 10]),
   boss: harderMrBadGuy
 };
 
