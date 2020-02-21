@@ -24,6 +24,12 @@ export const BASIC_SWORD: Weapon = {
   weaponType: WeaponType.Physical,
 };
 
+export const BASIC_WAND: Weapon = {
+  name: 'Wand',
+  damage: 10,
+  weaponType: WeaponType.Magical,
+};
+
 export const BASIC_HEALTH_POTION: Item = {
   name: 'Health Potion',
   userEffect: (player: Player) => {

@@ -1,5 +1,5 @@
 import { PlayerActions } from './Core/PlayerActions';
-import { STARTING_PLAYER, BASIC_SWORD, BASIC_HEALTH_POTION } from './Core/PlayerDefaults';
+import { STARTING_PLAYER, BASIC_SWORD, BASIC_HEALTH_POTION, BASIC_WAND } from './Core/PlayerDefaults';
 import { Dungeon, Player } from './Models/Entities';
 import { EXAMPLE_DUNGEONS } from './Dungeons';
 import { asyncReduce, logAfterDelay, compose } from './Utility';
@@ -7,8 +7,12 @@ import { traverseDungeon } from './Core/GameActions';
 import { combatVictory, isVictory } from './Models/GameEvents';
 import { Delay } from '../Shared/Utility';
 
-const player = PlayerActions.addItem(
+const playerWithWeapons = PlayerActions.addWeapon(
   PlayerActions.addWeapon(STARTING_PLAYER, BASIC_SWORD),
+  BASIC_WAND
+)
+const player = PlayerActions.addItem(
+  playerWithWeapons,
   BASIC_HEALTH_POTION
 )
 // const setupPlayer = compose(PlayerActions.curriedAddItem(BASIC_SWORD), PlayerActions.curriedAddItem(BASIC_HEALTH_POTION));

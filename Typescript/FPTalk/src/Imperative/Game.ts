@@ -1,5 +1,5 @@
 import { logAfterDelay} from './Utility';
-import { BASIC_WEAPON, DEFAULT_PLAYER } from './Core/PlayerDefaults';
+import { BASIC_SWORD, DEFAULT_PLAYER, BASIC_WAND } from './Core/PlayerDefaults';
 import { EXAMPLE_DUNGEONS } from './Dungeons';
 import { Player } from './Models/Player';
 import { DungeonTraverser } from './Core/DungeonTraverser';
@@ -11,7 +11,8 @@ const dungeons = EXAMPLE_DUNGEONS;
 const player = DEFAULT_PLAYER;
 
 async function executeGame(): Promise<void> {
-  player.addWeapons(BASIC_WEAPON)
+  player.addWeapons(BASIC_SWORD)
+  player.addWeapons(BASIC_WAND);
   player.addItems(BASIC_HEALTH_POTION)
 
   await logAfterDelay("Your adventure begins...", Delay.VERY_SHORT);
