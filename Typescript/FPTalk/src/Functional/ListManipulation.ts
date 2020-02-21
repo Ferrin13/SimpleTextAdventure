@@ -1,7 +1,8 @@
 import { NPC } from "./Models/Entities";
 import { DifficultyLevel } from "./Models/Types";
 
-const POSSIBLE_MINION_NAMES = ['Minion1', 'Minion2', 'Minion3', 'Minion4'];
+const POSSIBLE_MINION_NAMES = ['Mal-Thau', 'Terthuk', 'Mor-Drang', 'Tar-Revar', 'Dremar', 'Porthan', 'Yulter',
+ 'Kediath', 'Nabstuk', 'Kadier', 'Pul-Venegoth', 'Barsook', 'Ketran', 'Hashverm', 'Narlok', 'Perath-Dol'];
 const POSSIBLE_MINION_SPECIES = ['Human', 'Orc', 'Spider', 'Dog'];
 const EASY_MINION_HEALTH = 10;
 const EASY_MINION_DAMAGE = 2;

@@ -83,9 +83,13 @@ export const isWeapon = (entity: Weapon | Item): entity is Weapon =>  (entity as
 export class Weapon {
   name: string;
   damage: number;
-  constructor(name: string, damage: number) {
+  weaponType: WeaponType;
+  hidden?: boolean;
+  constructor(name: string, damage: number, weaponType: WeaponType) {
     this.name = name;
     this.damage = damage;
+    this.weaponType = weaponType;
+    this.hidden = false;
   }
 }
 
@@ -102,4 +106,9 @@ export class Item {
 export interface ICombatCapable {
   getHealth(): number,
   getBaseAttackDamage(): number
+}
+
+export enum WeaponType {
+  Physical,
+  Magical
 }

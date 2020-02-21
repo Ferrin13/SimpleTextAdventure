@@ -1,3 +1,4 @@
+import { CombatOutcome } from './../../Functional/Models/GameEvents';
 import { Player } from "../Models/Player";
 import { NPC } from "../Models/Entities";
 import { CombatEngagement } from "./CombatEngagement";
@@ -24,24 +25,20 @@ export class MinionCombat {
   async fightMinions(): Promise<CombatResult> {
     let combatResult = STANDARD_COMBAT_VICTORY; 
     while(this.minions.length > 0) {
-      const minion = this.minions.pop(); //Eventual bug
+      const minion = this.minions.shift(); //Eventual bug
       combatResult = await this.fightMinion(minion);
-      if(!combatResult.playerVictory) break;
+      if(!(combatResult.combatOutcome === CombatOutcome.VICTORY)) break;
     }
     return combatResult;
   }
 
   private async fightMinion(minion: NPC): Promise<CombatResult> {
-    let combatResult: CombatResult;
     const combatEngagement = new CombatEngagement(this.player, minion)
     const minionCombatResult = await combatEngagement.initiate();
-    if(minionCombatResult.playerVictory) {
-      combatResult = STANDARD_COMBAT_VICTORY;
+    if(minionCombatResult.combatOutcome === CombatOutcome.VICTORY) {
       this.defeatedMinions.push(minion);
-    } else {
-      combatResult = STANDARD_COMBAT_DEFEAT;
     }
 
-    return combatResult;
+    return minionCombatResult;
   }
 }

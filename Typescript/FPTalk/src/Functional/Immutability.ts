@@ -13,7 +13,7 @@ const mrBadGuy: NPC = {
 const earlyDungeon = {
   name: "Easy Dungeon",
   difficulty: 2,
-  minions: getRandomMinionsWithDifficulty([6, 2, 6, 3, 5]),
+  minions: getRandomMinionsWithDifficulty([6, 3, 5]),
   boss: mrBadGuy
 };
 
@@ -28,7 +28,7 @@ const harderMrBadGuy = NPCActions.setHealth(
 const laterDungeon =  {
   name: "Harder Dungeon",
   difficulty: 9,
-  minions: getRandomMinionsWithDifficulty([10]),
+  minions: getRandomMinionsWithDifficulty([10, 7]),
   boss: harderMrBadGuy
 };
 

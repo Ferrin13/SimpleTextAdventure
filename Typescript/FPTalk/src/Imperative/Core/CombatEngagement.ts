@@ -1,3 +1,4 @@
+import { COMBAT_RETREAT } from './../Models/GameEvents';
 import { NOTHING } from './../../Shared/Utility';
 import { npcAttackEffects } from './../Combat/CombatEngineWrapper';
 import { isCombatAttack, isCombatItemUse, AttackOutcome, BASIC_ATTACK } from './../../Functional/Combat/CombatTypes';
@@ -48,8 +49,34 @@ export class CombatEngagement {
   }
 
   initiate = async (): Promise<CombatResult> => {
+    if(!(await this.promptToEngage())) return COMBAT_RETREAT
+
     await logAfterDelay(`You initiate combat with ${this.npc.getName()} (Health: ${this.npc.getHealth()}, Attack Damage: ${this.npc.getBaseAttackDamage()})`, DEFAULT_LOG_WAIT);
     return this.combatRound()
+  }
+
+  private async promptToEngage(): Promise<boolean> {
+    return await createPrompt(`You encounter ${this.npc.getName()}. The current combat situation is: ${this.playerAndNpcState()} \nDo you wish to attack or retreat?`).then(async input => {
+      var result: boolean = null;
+      while(result === null)
+      switch(input.toLocaleLowerCase()) {
+        case 'retreat': 
+          result = false;
+          break;
+        case 'attack': 
+          result = true;
+          break;
+        default:
+          console.log("Please choose either 'Attack' or 'Retreat`\n");
+      }
+      return result;
+    })
+  }
+
+  
+  private playerAndNpcState(): string {
+    return `${this.player.getName()}: (Health: ${floatToString(this.player.getHealth())}/${floatToString(this.player.getMaxHealth())})` +
+      `and ${this.npc.getName()}: (Health: ${floatToString(this.npc.getHealth())})`
   }
 
   private async combatRound(): Promise<CombatResult> {
@@ -73,8 +100,6 @@ export class CombatEngagement {
        this.inCombat = false;   
       }
     }
-    // await logAfterDelay(`You slay ${this.npc.getName()}`, DEFAULT_LOG_WAIT);
-    // return STANDARD_COMBAT_VICTORY
     return this.handleFinalCombatState();
   }
 

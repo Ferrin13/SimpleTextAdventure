@@ -1,6 +1,8 @@
 import * as readline from 'readline';
 
-export const createPrompt = (promptText: string): Promise<string> => {
+export const createPrompt = async (promptText: string, delayMs: number = 0): Promise<string> => {
+  await new Promise(resolve => setTimeout(() => resolve(), delayMs));
+
   const readLineInterface = readline.createInterface({
     input: process.stdin,
     output: process.stdout

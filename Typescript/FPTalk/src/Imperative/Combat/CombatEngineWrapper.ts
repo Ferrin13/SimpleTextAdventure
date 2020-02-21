@@ -1,8 +1,7 @@
-import { isNpc } from './../Models/Entities';
 import { CombatCapable} from './../../Functional/Models/Entities';
 import { Player } from '../Models/Player';
 import { Player as FunctionalPlayer } from '../../Functional/Models/Entities';
-import { NPC as FunctionalNPC } from '../../Functional/Models/Entities';
+import { NPC as FunctionalNPC, Weapon as FunctionalWeapon } from '../../Functional/Models/Entities';
 import { Weapon, NPC, isPlayer, ICombatCapable } from '../Models/Entities';
 import { AttackOutcome } from '../../Functional/Combat/CombatTypes';
 import { getAttackEffects } from '../../Functional/Combat/CombatEngine';

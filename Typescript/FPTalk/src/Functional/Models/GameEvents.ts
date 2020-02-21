@@ -6,7 +6,6 @@ export enum CombatOutcome {
   RETREAT
 } 
 
-
 export interface CombatResult {
   outcome: CombatOutcome;
   player: Player

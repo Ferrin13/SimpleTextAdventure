@@ -19,55 +19,59 @@ export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult
 }
 
 const combatRound = async (player: Player, npc: NPC): Promise<CombatResult> => {
-  await logAfterDelay(combatRoundStartDescription(player, npc), 200);
+  await logAfterDelay(combatRoundStartDescription(player, npc), DEFAULT_LOG_WAIT);
 
-  return createPrompt('Choose a weapon or item to use\n').then(async input => {
+  return createPrompt('Choose a weapon or item to use\n', 1000).then(async input => {
     const action = inputHandler(input, player);
     if(isInvalidInput(action)) {
       console.log(`${input} is not in your inventory, your inventory currently is:`)
       PlayerActions.printInventory(player);
       return combatRound(player, npc)
     }
-    const playerActionOutcome = executePlayerAction(player, action, npc);
+    const playerActionOutcome = await executePlayerAction(player, action, npc);
+    const postPlayerAttackPlayer = playerActionOutcome.attacker;
+    const postPlayerAttackNpc = playerActionOutcome.defender;
+
     switch(playerActionOutcome.roundState) {
-      case CombatRoundState.ATTACKER_DEFEATED: return onCombatDefeat(player, npc)
-      case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(player, npc)
-      case CombatRoundState.DEFENDER_DEFEATED: return onCombatVictory(player, npc)
+      case CombatRoundState.ATTACKER_DEFEATED: return onCombatDefeat(postPlayerAttackPlayer, postPlayerAttackNpc)
+      case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(postPlayerAttackPlayer, postPlayerAttackNpc)
+      case CombatRoundState.DEFENDER_DEFEATED: return onCombatVictory(postPlayerAttackPlayer, postPlayerAttackNpc)
       default:
     }
-    const postAttackPlayer = playerActionOutcome.attacker;
-    const postAttackNpc = playerActionOutcome.defender;
-    const npcActionOutcome = executeAttack(postAttackNpc, BASIC_ATTACK, postAttackPlayer);
+
+    const npcActionOutcome = await executeAttack(postPlayerAttackNpc, BASIC_ATTACK, postPlayerAttackPlayer);
+    const postNpcAttackNpc = npcActionOutcome.attacker;
+    const postNpcAttackPlayer = npcActionOutcome.defender;
     switch(npcActionOutcome.roundState) {
-      case CombatRoundState.ATTACKER_DEFEATED: return onCombatVictory(postAttackPlayer, postAttackNpc)
-      case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(postAttackPlayer, postAttackNpc)
-      case CombatRoundState.DEFENDER_DEFEATED: return onCombatDefeat(postAttackPlayer, postAttackNpc)
-      default: return combatRound(npcActionOutcome.defender, npcActionOutcome.attacker)
+      case CombatRoundState.ATTACKER_DEFEATED: return onCombatVictory(postNpcAttackPlayer, postNpcAttackNpc)
+      case CombatRoundState.BOTH_DEFEATED: return onCombatDefeat(postNpcAttackPlayer, postNpcAttackNpc)
+      case CombatRoundState.DEFENDER_DEFEATED: return onCombatDefeat(postNpcAttackPlayer, postNpcAttackNpc)
+      default: return combatRound(postNpcAttackPlayer, postNpcAttackNpc)
     }
   })
 }
 
-const executePlayerAction = (player: Player, action: CombatAction, target: NPC): CombatRoundOutcome<Player, NPC> => {
+const executePlayerAction = async (player: Player, action: CombatAction, target: NPC): Promise<CombatRoundOutcome<Player, NPC>> => {
   //Need !isPlayer for type narrowing (Also, can't use swtich(true) because type narrowing doesn't occur)
   if (isCombatAttack(action) && !isPlayer(target)) {
     return executeAttack(player, action, target)
   } else if (isCombatItemUse(action)) {
-    return executePlayerItemUse(player, action, target)
+    return Promise.resolve(executePlayerItemUse(player, action, target))
   }
   throw new Error(`Invalid combat action: ${JSON.stringify(action)}`)
 }
 
-const executeAttack = <TAttacker extends CombatCapable & Named, TDefender extends CombatCapable & Named>(
+const executeAttack = async <TAttacker extends CombatCapable & Named, TDefender extends CombatCapable & Named>(
   attacker: TAttacker,
   action: CombatAttack,
   defender: TDefender
-): CombatRoundOutcome<TAttacker, TDefender> => {
+): Promise<CombatRoundOutcome<TAttacker, TDefender>> => {
   const attackEffects = getAttackEffects(attacker, defender, action.weapon);
   const modifiedAttacker = attackEffects.attackerChange(attacker);
   const modifiedDefender = attackEffects.defenderChange(defender);
   const damageDone = defender.health - modifiedDefender.health;
   const attackMessage = attackOutcomeDescription(attackEffects.attackOutcome, action.weapon, attacker.name, defender.name, damageDone);
-  console.log(attackMessage);
+  await logAfterDelay(attackMessage, DEFAULT_LOG_WAIT);
   return {
     attacker: modifiedAttacker,
     defender: modifiedDefender,
@@ -93,7 +97,7 @@ const getRoundState = (attacker: CombatCapable, defender: CombatCapable): Combat
 }
 
 const executePlayerItemUse = (player: Player, action: CombatItemUse, target: NPC): CombatRoundOutcome<Player, NPC> => {
-  console.log(`${player}'s item is ineffectual`);
+  console.log(`${player.name}'s item is ineffectual`);
   return {
     attacker: player,
     defender: target,
@@ -102,12 +106,12 @@ const executePlayerItemUse = (player: Player, action: CombatItemUse, target: NPC
 }
 
 const onCombatVictory = async (player: Player, enemy: NPC, victoryInfo?: string): Promise<CombatResult> => {
-  await logAfterDelay(`${player.name} slays ${enemy.name}`, 200);
+  await logAfterDelay(`${player.name} slays ${enemy.name}!`, DEFAULT_LOG_WAIT);
   return combatVictory(player);
 }
 
 const onCombatDefeat = async (player: Player, enemy: NPC, victoryInfo?: string): Promise<CombatResult> => {
-  await logAfterDelay(`${player.name} is defeated by ${enemy.name}`, 200);
+  await logAfterDelay(`${player.name} is defeated by ${enemy.name}`, DEFAULT_LOG_WAIT);
   return combatDefeat(player);
 }
 
@@ -151,7 +155,7 @@ const combatActionCreator = (entity: Weapon | Item): CombatAction => {
 }
 
 const promptToEngage = async (player: Player, npc: NPC): Promise<boolean> =>
-  await createPrompt(`You encounter ${npc.name}. The current combat situation is: ${playerAndNpcState(player, npc)} \nDo you wish to attack or retreat?`).then(async input => {
+  await createPrompt(`You encounter ${npc.name}. ${playerAndNpcState(player, npc)} \nDo you wish to attack or retreat?`).then(async input => {
     switch(input.toLocaleLowerCase()) {
       case 'retreat': return false;
       case 'attack': return true;
@@ -166,7 +170,7 @@ const combatRoundStartDescription = (player: Player, npc: NPC): string =>
   `\nCombat round started between ${playerAndNpcState(player, npc)}`
 
 const playerAndNpcState = (player: Player, npc: NPC): string =>
-  `${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}) and ${npc.name}: (Health: ${floatToString(npc.health)})`
+  `${player.name}: (Health: ${floatToString(player.health)}/${floatToString(player.maxHealth)}). ${npc.name}: (Health: ${floatToString(npc.health)})`
 
 const INVALID_INPUT_SYMBOL = Symbol()
 interface INVALID_INPUT_TYPE {

@@ -3,7 +3,7 @@ import { WeaponType } from "../Models/Enums";
 
 export const STARTING_PLAYER: Player = {
   name: "Ferrin",
-  health: 10,
+  health: 100,
   maxHealth: 100,
   baseAttackDamage: 10,
   inventoryItems: [

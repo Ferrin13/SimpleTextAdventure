@@ -16,7 +16,7 @@ async function executeGame(player: Player, dungeons: Dungeon[]): Promise<void> {
     combatVictory(player)
   )
   const finalMessage = isVictory(finalResult) ? 
-    `Congratulations, you have defated ${dungeons.length} and won the game!` :
+    `Congratulations, you have conquered ${dungeons.length} dungeons and won the game!` :
     `You have failed, try again next time. Or don't, current data suggestes you'll fail again.`
   await logAfterDelay(finalMessage, DEFAULT_LOG_WAIT);
 }
