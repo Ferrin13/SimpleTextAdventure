@@ -1,10 +1,10 @@
-import { Weapon, Item } from './../Models/Entities';
+import { Weapon, Item } from '../Models/Entities';
 import { Player } from "../Models/Entities";
 import { WeaponType } from "../Models/Enums";
 
 export const STARTING_PLAYER: Player = {
   name: "Ferrin",
-  health: 100,
+  health: 50,
   maxHealth: 100,
   baseAttackDamage: 10,
   inventoryWeapons: [

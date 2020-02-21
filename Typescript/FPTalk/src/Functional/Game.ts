@@ -1,5 +1,5 @@
 import { PlayerActions } from './Core/PlayerActions';
-import { STARTING_PLAYER, BASIC_SWORD, BASIC_HEALTH_POTION } from './Core/PlayerRepository';
+import { STARTING_PLAYER, BASIC_SWORD, BASIC_HEALTH_POTION } from './Core/PlayerDefaults';
 import { Dungeon, Player } from './Models/Entities';
 import { EXAMPLE_DUNGEONS } from './Dungeons';
 import { asyncReduce, logAfterDelay, compose } from './Utility';

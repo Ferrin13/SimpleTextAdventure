@@ -1,14 +1,14 @@
 import { logAfterDelay} from './Utility';
-import { BASIC_WEAPON } from './Core/PlayerRepository';
+import { BASIC_WEAPON, DEFAULT_PLAYER } from './Core/PlayerDefaults';
 import { EXAMPLE_DUNGEONS } from './Dungeons';
 import { Player } from './Models/Player';
 import { DungeonTraverser } from './Core/DungeonTraverser';
-import { BASIC_HEALTH_POTION } from '../Functional/Core/PlayerRepository';
+import { BASIC_HEALTH_POTION } from '../Functional/Core/PlayerDefaults';
 import { CombatOutcome } from './Models/GameEvents';
 import { Delay } from '../Shared/Utility';
 
 const dungeons = EXAMPLE_DUNGEONS;
-const player = new Player('Ferrin', 20, 100, 10);
+const player = DEFAULT_PLAYER;
 
 async function executeGame(): Promise<void> {
   player.addWeapons(BASIC_WEAPON)

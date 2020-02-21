@@ -20,7 +20,7 @@ export const fightEnemy = async (player: Player, npc: NPC): Promise<CombatResult
 const combatRound = async (player: Player, npc: NPC): Promise<CombatResult> => {
   await logAfterDelay(combatRoundStartDescription(player, npc), Delay.STANDARD);
 
-  return createPrompt('Choose a weapon or item to use\n', 1000).then(async input => {
+  return createPrompt('Choose a weapon or item to use\n').then(async input => {
     const action = inputHandler(input, player);
     if(isInvalidInput(action)) {
       console.log(`${input} is not in your inventory, your inventory currently is:`)

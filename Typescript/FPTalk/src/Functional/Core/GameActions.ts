@@ -11,7 +11,7 @@ export type DungeonCombatResult = CombatResult & {
 }
 
 export const traverseDungeon = async (player: Player, dungeon: Dungeon): Promise<CombatResult> => {
-  await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}...`, Delay.STANDARD);
+  await logAfterDelay(`You have entered the fearsome ${dungeon.boss.name!}'s ${dungeon.name}.\n`, Delay.STANDARD);
 
   const minionCombatResult = await fightMinions(player, dungeon);
   switch(true) {
@@ -46,9 +46,12 @@ const onRetreat = async (player: Player, dungeon: Dungeon): Promise<CombatResult
 }
 
 const fightBoss = async (player: Player, dungeon: Dungeon): Promise<CombatResult> => {
-  await logAfterDelay(`You encounter ${dungeon.boss.name!}!!!`, Delay.LONG);
+  await logAfterDelay(`You have reached ${dungeon.boss.name!}!!!`, Delay.LONG);
   await logAfterDelay(`He has ${dungeon.boss.health} health and does ${dungeon.boss.baseAttackDamage} damage per attack!`, Delay.STANDARD);
   return fightEnemy(player, dungeon.boss).then(async result => {
+    if(isRetreat(result)) {
+      await logAfterDelay(`${dungeon.boss.name} leaps and stabs you in the back as you turn to run!!!`, Delay.LONG)
+    }
     const dungeonCompletionMessage = `${isVictory(result) ? 'You have survied' : 'You have been defeated in'} ${dungeon.name}!\n`;
     await logAfterDelay(dungeonCompletionMessage, Delay.LONG);
     return result;

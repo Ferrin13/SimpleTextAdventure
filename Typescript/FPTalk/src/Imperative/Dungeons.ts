@@ -4,7 +4,7 @@ import { getRandomMinionsWithDifficulty } from "./MinionGenerator";
 const mrBadGuy = new NPC("Mr. Bad Guy", "Human", 10, 100);
 
 const earlyDungeon = new Dungeon("Easy Dungeon", 2, mrBadGuy);
-earlyDungeon.addMinions(getRandomMinionsWithDifficulty([4, 5, 3]))
+earlyDungeon.addMinions(getRandomMinionsWithDifficulty([3, 2, 5]))
 
 const harderMyBadGuy = mrBadGuy; //Bug
 harderMyBadGuy.setHealth(1000);

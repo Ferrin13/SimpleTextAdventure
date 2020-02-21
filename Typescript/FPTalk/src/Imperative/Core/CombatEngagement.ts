@@ -83,7 +83,7 @@ export class CombatEngagement {
     this.inCombat = true;
     while(this.inCombat) {
       await this.printEngagementState();
-      const input = await createPrompt('Choose a weapon or item to use\n', Delay.SHORT)
+      const input = await createPrompt('Choose a weapon or item to use\n')
       const action = this.inputHandler(input);
       if(isInvalidInput(action)) {
         console.log(`${input} is not in your inventory, your inventory currently is:`)
