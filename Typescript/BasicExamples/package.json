@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "filter": "ts-node Filter",
+    "map": "ts-node Map",
+    "flatMap": "ts-node flatMap",
+    "reduce": "ts-node reduce",
+    "functional": "ts-node src/Functional/Game"
+  },
+  "dependencies": {
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.3"
+  },
+  "devDependencies": {
+    "@types/node": "^13.5.0"
+  }
+}
